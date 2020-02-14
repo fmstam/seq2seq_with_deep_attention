@@ -27,7 +27,8 @@ class DateDataset(Dataset):
     def __init__(self, 
                  json_file, 
                  get_index=False,
-                 sequence_length=12):  #
+                 sequence_length=12,
+                 SOS_SYMBOL='_ST_'):  #
 
         self.json_file = json_file
         self.get_index = get_index
@@ -44,6 +45,7 @@ class DateDataset(Dataset):
         lst = []
         [lst.extend([w for w in x['input']]) for x in self.dataset]
         self.vocab = set(lst)
+        self.vocab.add(SOS_SYMBOL) # sequence start special word
         self.word_to_index = {word: i for i, word in enumerate(self.vocab)}
         print('done')
         

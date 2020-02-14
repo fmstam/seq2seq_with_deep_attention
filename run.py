@@ -18,15 +18,16 @@ sys.path.append("..")
 
 # local files
 from seq2seq_with_deep_attention.helpers import DateDataset
-from seq2seq_with_deep_attention.RDN import Encoder
+from seq2seq_with_deep_attention.Luong import LuongGlobalAttention
 
 from torch.utils.data import Dataset, DataLoader
-
 
 # constants
 INPUT_SIZE = 12
 OUTPUT_SIZE = 10
-BATCH_SIZE = 1
+HIDDEN_SIZE = 64
+BATCH_SIZE = 10
+SOS_SYMBOL='_ST_' # start of sequence symbol
 
 
 
@@ -38,17 +39,22 @@ def main():
                             shuffle=True, 
                             num_workers=0)
 
-    encoder = Encoder(num_embeddings=len(ds.vocab), 
-                      batch_size = BATCH_SIZE,
-                      device='gpu')
+    # encoder = Encoder(num_embeddings=len(ds.vocab), 
+    #                   batch_size = BATCH_SIZE,
+    #                   device='gpu')
 
-    # for batch, sample in enumerate(dataloader):
-    #    print(batch, sample)
+    loung = LuongGlobalAttention(num_embeddings=len(ds.vocab),
+                                 hidden_size=HIDDEN_SIZE,
+                                 output_size=OUTPUT_SIZE,
+                                 batch_size=BATCH_SIZE,
+                                 sos_symbol_index=ds.word_to_index[SOS_SYMBOL],
+                                 lr = 1e-4,
+                                 device='gpu')
 
     for batch, out_seq in dataloader:
         # pass to the encoder
-        states, hidden = encoder(batch)
-
+        output = loung(batch)
+        print(output)
 
 
 if __name__ is '__main__':
