@@ -20,14 +20,20 @@ sys.path.append("..")
 from seq2seq_with_deep_attention.helpers import DateDataset
 from seq2seq_with_deep_attention.Luong import LuongGlobalAttention
 
+# torch
+import torch
 from torch.utils.data import Dataset, DataLoader
+
+torch.manual_seed(1)
 
 # constants
 INPUT_SIZE = 12
 OUTPUT_SIZE = 10
 HIDDEN_SIZE = 64
-BATCH_SIZE = 10
+BATCH_SIZE = 1
 SOS_SYMBOL='_ST_' # start of sequence symbol
+
+
 
 
 

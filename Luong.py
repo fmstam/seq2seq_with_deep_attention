@@ -38,7 +38,7 @@ class LuongGlobalAttention(nn.Module):
         self.hidden_size = hidden_size
         self.output_size = output_size
         self.batch_size = batch_size
-        self.sos_symbol_index = sos_symbol_index
+        self.sos_symbol_index = torch.tensor(sos_symbol_index)
         self.lr = lr
         # device
         if device is not 'cpu':
@@ -79,16 +79,22 @@ class LuongGlobalAttention(nn.Module):
         # loop unitl we recieve all words
         # create decoder input
         decoder_input = self.sos_symbol_index # initial start of sequence symbol
+        decoder_input = decoder_input.unsqueeze(-1).unsqueeze(-1) # 3 dimensions
         for i in range(self.output_size):
             decoder_output, _ = self.decoder(decoder_input, hidden, clear_state=False)
-            # calcualte attention with dot product
-            attention = torch.bmm(encoder_output, decoder_output)
+            # calcualte attention with dot product and get probs
+            attention = F.softmax(torch.bmm(encoder_output, decoder_output))
             # calculate the context
             context = torch.bmm(encoder_output, attention)
             # concatenate contxt with decoder output
             classifer_input = torch.cat(context, decoder_output)
             # do the classfication step
-            
+            next_symbol_probs = F.log_softmax(self.fc(classifer_input))
+            # get the 
+            _, next_symbol = next_symbol_probs.max()
+            decoder_input.append(next_symbol)
+        
+
 
 
 
