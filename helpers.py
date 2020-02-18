@@ -37,7 +37,6 @@ class DateDataset(Dataset):
         self.SOS_SYMBOL = SOS_SYMBOL
         self.PADDING_SYMBOL = PADDING_SYMBOL
 
-
         # load
         print('Loading dataset...')
         self.dataset = sum(json.loads(open(self.json_file).read()), [])
@@ -74,11 +73,13 @@ class DateDataset(Dataset):
             
         return torch.tensor([self.input_word_to_index[w] for w in seq])
 
-    def output_sequence_to_index(self, seq):
+    def output_sequence_to_index(self, seq, shifted=False):
         # shift the output sequence by one time step 
-        seq = seq[:-1]
-        # append an SOS symbol
-        seq = self.SOS_SYMBOL + seq
+        if shifted:
+            seq = seq[:-1]
+            # append an SOS symbol
+            seq = self.SOS_SYMBOL + seq
+
         # get index
         return torch.tensor([self.output_word_to_index[w] for w in seq])
 
@@ -93,15 +94,16 @@ class DateDataset(Dataset):
         # indeces encoding
         if self.get_index: # index in the word_to_index lookup table
             in_seq = self.input_sequence_to_index(item['input'])
+            out_seq_shifted = self.output_sequence_to_index(item['output'], shifted=True)
             out_seq = self.output_sequence_to_index(item['output'])
-            item = (in_seq, out_seq)
+            item = (in_seq, out_seq, out_seq_shifted)
         
         return item
 
 
 def get_sequence_from_indexes(vocab, indexes):
     seq = []
-    indexes = indexes.sequeeze(-1)
+    indexes = np.squeeze(indexes)
     for x in indexes:
         for k, v in vocab.items():
             if v == x:

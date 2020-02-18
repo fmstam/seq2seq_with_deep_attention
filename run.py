@@ -43,11 +43,11 @@ random_seed = torch.manual_seed(45)
 INPUT_SIZE = 12
 OUTPUT_SIZE = 10
 HIDDEN_SIZE = 64
-BATCH_SIZE = 32
+BATCH_SIZE = 1
 SOS_SYMBOL = '\t' # start of sequence symbol
 EOS_SYMBOL= '\n'
 PADDING_SYMOBL = '_'
-VALIDATION_RATIO = .25
+VALIDATION_RATIO = .1
 
 
 
@@ -106,26 +106,28 @@ def main():
     print('Training ...')
     losses = []
     samples = []
-    train_for = 1000 # if we wish to train for limited number of batches
-    for batch, target_seq in train_dataloader:
+    train_for = 10000 # if we wish to train for limited number of batches
+    for batch, target_seq, target_seq_shifted in train_dataloader:
         if train_for == 0:
             break
         train_for -= 1
 
+        # put them in the 
+        target_seq_shifted = target_seq_shifted.to(loung.device)
         target_seq = target_seq.to(loung.device)
         # train a Loung seq2seq model
         loung.zero_grad()
         loung.encoder.zero_grad()
         loung.decoder.zero_grad()
-        output_seq_probs, output_seq, hidden, attention, context = loung(batch, target_seq)
+        output_seq_probs, output_seq, hidden, attention, context = loung(batch, target_seq_shifted)
         loss = 0
         for i in range(OUTPUT_SIZE):
             loss += loss_function(output_seq_probs[:, i, :], target_seq[:, i])
         loss.backward()
         opitmizer.step()
         losses.append(loss.detach().cpu().item())
-        #samples.append((get_sequence_from_indexes(ds.input_word_to_index, batch[0,:]), get_sequence_from_indexes(ds.output_word_to_index, output_seq.squeeze(-1))))
-        samples.append((target_seq.detach().cpu().numpy(), output_seq.detach().cpu().numpy()))  
+        # uncomment this line to check how store all training tuples
+        #samples.append((target_seq.detach().cpu().numpy(), output_seq.detach().cpu().numpy()))  
 
     # plot loss
     plt.figure()
@@ -139,15 +141,28 @@ def main():
 ################################ Validation #############################
 
     print('Validation ...')
-    for batch, target_seq in validation_dataloader:
-        target_seq = target_seq.to(loung.device)
-        output_seq_probs, output_seq, hidden, attention, context = loung(batch, target_seq)
-        samples.append((target_seq.detach().cpu().numpy(), output_seq.detach().cpu().numpy()))  
+    validate_for = 100 # to see the results fast
+    for batch, target_seq, target_seq_shifted in validation_dataloader:
+        if validate_for == 0:
+            break
+        validate_for -= 1
+        # ignore the last batch if it does not fit the expected batch size
+        if batch.size()[0] < BATCH_SIZE:
+            break
+        target_seq_shifted = target_seq_shifted.to(loung.device)
+        output_seq_probs, output_seq, hidden, attention, context = loung(batch, target_seq_shifted)
+        input_word = get_sequence_from_indexes(ds.input_word_to_index, batch.detach().cpu().numpy())
+        target_word = get_sequence_from_indexes(ds.output_word_to_index, target_seq.detach().cpu().numpy())
+        generated_word = get_sequence_from_indexes(ds.output_word_to_index, output_seq.detach().cpu().numpy())
+        samples.append((''.join(input_word), ''.join(target_word), ''.join(generated_word)))  
     
     with open('validation_results.txt', 'w') as f:
-        f.write(str(samples))
+        for x in samples:
+            f.write('%s\t%s\t(%s)\n' % x)
 
-
+            
+################################ Testing ############################
+    # we need to run loung model for each symbol, 
 
 
  
