@@ -101,6 +101,7 @@ class DateDataset(Dataset):
 
 def get_sequence_from_indexes(vocab, indexes):
     seq = []
+    indexes = indexes.sequeeze(-1)
     for x in indexes:
         for k, v in vocab.items():
             if v == x:
