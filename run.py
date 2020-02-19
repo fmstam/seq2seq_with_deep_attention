@@ -164,9 +164,9 @@ def main():
             f.write('%s\t%s\t(%s)\n' % x)
             print('%s -> %s' % (x[0], x[2]))
     
-    print('Visualizing attention \n Example:')
+    print('\n\nVisualizing attention \n Example:')
     print('input word:%s' % ''.join(input_word))
-    print('generated word %s' % ''.join(generated_word))
+    print('generated word:%s' % ''.join(generated_word))
     # plot last attention
     plt.matshow(attention[0].t().detach().cpu())
     plt.xlabel('generated word')
