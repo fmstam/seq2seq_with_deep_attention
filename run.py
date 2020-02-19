@@ -51,8 +51,20 @@ VALIDATION_RATIO = .1
 
 
 
+def plot_attention(attention, input_word, generated_word):
+    print('\nAttention matrix')
+    # plot last attention
+    plt.matshow(attention)
+    plt.xlabel('generated word')
+    plt.xticks(range(10),generated_word)
+    plt.ylabel('input word')
+    plt.yticks(range(12),input_word)
+    plt.show(block=False)
+
+
+
 def main():
- 
+
     ds = DateDataset('/home/faroq/code/seq2seq/out.json', 
                      get_index=True,
                      sequence_length=INPUT_SIZE,
@@ -106,13 +118,12 @@ def main():
     print('Training ...')
     losses = []
     samples = []
-    train_for = 10000 # if we wish to train for limited number of batches
+    train_for = 50000 # if we wish to train faster for limited number of batches
     for batch, target_seq, target_seq_shifted in train_dataloader:
         if train_for == 0:
             break
         train_for -= 1
-
-        # put them in the 
+        # put them in the same device as the model's
         target_seq_shifted = target_seq_shifted.to(loung.device)
         target_seq = target_seq.to(loung.device)
         # train a Loung seq2seq model
@@ -139,7 +150,7 @@ def main():
 
 
 ################################ Validation #############################
-
+    
     print('Validation ...')
     validate_for = 100 # to see the results fast
     for batch, target_seq, target_seq_shifted in validation_dataloader:
@@ -164,20 +175,32 @@ def main():
             f.write('%s\t%s\t(%s)\n' % x)
             print('%s -> %s' % (x[0], x[2]))
     
-    print('\n\nVisualizing attention \n Example:')
-    print('input word:%s' % ''.join(input_word))
-    print('generated word:%s' % ''.join(generated_word))
-    # plot last attention
-    plt.matshow(attention[0].t().detach().cpu())
-    plt.xlabel('generated word')
-    plt.xticks(range(10),generated_word)
-    plt.ylabel('input word')
-    plt.yticks(range(12),input_word)
-    plt.show(block=False)
-
 
 ################################ Testing ############################
     # we need to run loung model for each symbol, 
+    print('\n\nTesting ....')
+    input_list = ['23Jan2015', '012315', '01/23/15', '1/23/15', '01/23/2015', '1/23/2015', '23-01-2015', '23-1-2015', 'JAN 23, 15', 'Jan 23, 2015', '23.01.2015', '23.1.2015', '2015.01.23', '2015.1.23', '20150123', '2015/01/23', '2015-01-23', '2015-1-23']
+
+    for x in input_list:
+        input_seq = ds.input_sequence_to_index(x.upper())
+        #print(x, input_seq)
+        input_seq = input_seq.to(loung.device)
+        target_seq_shifted = torch.tensor(ds.output_word_to_index[SOS_SYMBOL])
+        input_seq = input_seq.unsqueeze(0) # make it in the proper dimension - 3D
+        target_seq_shifted = target_seq_shifted.unsqueeze(0).unsqueeze(0).to(loung.device)
+        for _ in range(OUTPUT_SIZE):
+            output_seq_probs, output_seq, hidden, attention, context = loung(input_seq, target_seq_shifted)
+            target_seq_shifted = torch.cat((target_seq_shifted[0], output_seq[:,-1])).unsqueeze(0)
+        
+        generated_word = get_sequence_from_indexes(ds.output_word_to_index, target_seq_shifted.detach().cpu().numpy())
+        generated_word = ''.join(generated_word[1:]) # ingnore the SOS symbol
+        print('%s -> %s\n' % (x, generated_word))
+        plot_attention(attention[0].t().detach().cpu(), x, generated_word)
+
+
+
+
+
 
 
 if __name__ is '__main__':
