@@ -1,7 +1,7 @@
 ###!/usr/bin/env python
 #%%
 """ 
-    Helper classes and functions
+Example for date conversion
 """
 __author__ = "AL-Tam Faroq"
 __copyright__ = "Copyright 2020, UALG"
@@ -162,9 +162,11 @@ def main():
     with open('validation_results.txt', 'w') as f:
         for x in samples:
             f.write('%s\t%s\t(%s)\n' % x)
+            print('%s -> %s' % (x[0], x[2]))
     
-    print(input_word)
-    print(generated_word)
+    print('Visualizing attention \n Example:')
+    print('input word:%s' % ''.join(input_word))
+    print('generated word %s' % ''.join(generated_word))
     # plot last attention
     plt.matshow(attention[0].t().detach().cpu())
     plt.xlabel('generated word')
