@@ -6,7 +6,7 @@ The current implementation is meant for learninig purposes and might not be effe
 
 ## To run:
   see `example.ipynb`
-## For TensorFlow impelementation and more useful linksL
+## For TensorFlow impelementation and more useful links:
   see, please check: https://github.com/AndreMaz/deep-attention
 
 
