@@ -151,25 +151,31 @@ def main():
             break
         target_seq_shifted = target_seq_shifted.to(loung.device)
         output_seq_probs, output_seq, hidden, attention, context = loung(batch, target_seq_shifted)
+
+        # to get the best perfomace increase the batch size above and uncomment all the following lines
         input_word = get_sequence_from_indexes(ds.input_word_to_index, batch.detach().cpu().numpy())
         target_word = get_sequence_from_indexes(ds.output_word_to_index, target_seq.detach().cpu().numpy())
         generated_word = get_sequence_from_indexes(ds.output_word_to_index, output_seq.detach().cpu().numpy())
         samples.append((''.join(input_word), ''.join(target_word), ''.join(generated_word)))  
     
+    
     with open('validation_results.txt', 'w') as f:
         for x in samples:
             f.write('%s\t%s\t(%s)\n' % x)
+    
+    print(input_word)
+    print(generated_word)
+    # plot last attention
+    plt.matshow(attention[0].t().detach().cpu())
+    plt.xlabel('generated word')
+    plt.xticks(range(10),generated_word)
+    plt.ylabel('input word')
+    plt.yticks(range(12),input_word)
+    plt.show(block=False)
 
-            
+
 ################################ Testing ############################
     # we need to run loung model for each symbol, 
-
-
- 
-
-
-
-
 
 
 if __name__ is '__main__':

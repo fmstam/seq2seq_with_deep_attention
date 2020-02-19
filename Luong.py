@@ -90,35 +90,37 @@ class LuongGlobalAttention(nn.Module):
         self.to(self.device)
 
 
-    def forward(self, input_seq, target_seq):
-        """ Returns the generated sequence and the accumlated NLL loss 
+    def forward(self, input_seq, shifted_target_seq):
+        """ Calculates the generated sequence.
 
         keyword argumenents:
         input_seq -- the input sequence
-        target_seq -- the output sequence
-        hidden -- starting hidden state
+        shifted_target_seq -- the output sequence shifted one symbol
         """
 
-        # get the encoder output
+        ## get the encoder output
         encoder_output, hidden = self.encoder(input_seq)
-        # get the decoder output
-        decoder_output, hidden = self.decoder(target_seq, hidden, clear_state=False)
+        ## get the decoder output
+        decoder_output, hidden = self.decoder(shifted_target_seq, hidden, clear_state=False)
         # fix the dimension of the encode_output to apply the dot product
         encoder_output_ = encoder_output.permute(0, 2 , 1)
-        ## 1 - global scoring: (dot product) calcualte attention with dot product and get probs 
+        ## Attention
+        # 1 - global scoring: (dot product) calcualte attention with dot product and get probs 
         attention = F.softmax(torch.bmm(decoder_output, encoder_output_), dim=2)
-        ## 2 - concat scoring:
-        #attention = F.softmax(torch.stack())
-        # calculate the context
+        # 2 - concat scoring:
+        # attention = F.softmax(torch.stack())
+
+        ## calculate the context
         context = torch.bmm(attention, encoder_output)
         # concatenate contxt with decoder output
         classifer_input = torch.cat((context, decoder_output), dim=2)
-        # do the classfication step
+        ## do the classfication step
         td = TimeDistributed(self.fc, batch_first=True)
         fc_out = td(torch.tanh(classifer_input))
         output_seq_probs = F.log_softmax(fc_out, dim=2)
-        # get the 
+        ## get the generated sequence
         _, output_seq = output_seq_probs.max(dim=2)
+
         return output_seq_probs, output_seq, hidden, attention, context
         #decoder_input.append(next_symbol)
         
