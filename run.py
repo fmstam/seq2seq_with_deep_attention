@@ -113,12 +113,11 @@ def main():
     loss_function = nn.NLLLoss()
     opitmizer = optim.Adam(loung.parameters(), lr=0.001)
 
-
     ################## Training #############
     print('Training ...')
     losses = []
     samples = []
-    train_for = 50000 # if we wish to train faster for limited number of batches
+    train_for = 5000 # if we wish to train faster for limited number of batches
     for batch, target_seq, target_seq_shifted in train_dataloader:
         if train_for == 0:
             break
@@ -131,11 +130,15 @@ def main():
         loung.encoder.zero_grad()
         loung.decoder.zero_grad()
         output_seq_probs, output_seq, hidden, attention, context = loung(batch, target_seq_shifted)
+        # loss calculation
         loss = 0
+        # can be replaced by a single elegant line, but I do it like this for better readability
         for i in range(OUTPUT_SIZE):
             loss += loss_function(output_seq_probs[:, i, :], target_seq[:, i])
+        # back propagate
         loss.backward()
         opitmizer.step()
+        # loss curve
         losses.append(loss.detach().cpu().item())
         # uncomment this line to check how store all training tuples
         #samples.append((target_seq.detach().cpu().numpy(), output_seq.detach().cpu().numpy()))  

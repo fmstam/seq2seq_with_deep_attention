@@ -21,6 +21,8 @@ import torch.optim as optim
 from seq2seq_with_deep_attention.RDN import EmbeddingLSTM
 
 class TimeDistributed(nn.Module):
+    #  Used this implementation
+    #  https://discuss.pytorch.org/t/any-pytorch-function-can-work-as-keras-timedistributed/1346/4
     def __init__(self, module, batch_first=False):
         super(TimeDistributed, self).__init__()
         self.module = module
