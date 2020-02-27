@@ -43,7 +43,7 @@ random_seed = torch.manual_seed(45)
 INPUT_SIZE = 12
 OUTPUT_SIZE = 10
 HIDDEN_SIZE = 64
-BATCH_SIZE = 1
+BATCH_SIZE = 128
 SOS_SYMBOL = '\t' # start of sequence symbol
 EOS_SYMBOL= '\n'
 PADDING_SYMOBL = '_'
@@ -117,7 +117,7 @@ def main():
     print('Training ...')
     losses = []
     samples = []
-    train_for = 5000 # if we wish to train faster for limited number of batches
+    train_for = 50000 # if we wish to train faster for limited number of batches
     for batch, target_seq, target_seq_shifted in train_dataloader:
         if train_for == 0:
             break
@@ -153,7 +153,6 @@ def main():
 
 
 ################################ Validation #############################
-    
     print('Validation ...')
     validate_for = 100 # to see the results fast
     for batch, target_seq, target_seq_shifted in validation_dataloader:
