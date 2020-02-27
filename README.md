@@ -1,9 +1,8 @@
 # Sequence to sequence with attention (seq2seq-with-deep-attention)
-Sequence to sequence (seq2seq) using RNN with attention mechanism in pytorch.
 
 This work is the pytorch implementation of some sequence to sequence models including:
 
-## 1-  Loung seq2seq model.
+## 1- Loung seq2seq model.
  We have used the date generation code from https://github.com/tensorflow/tfjs-examples/tree/master/date-conversion-attention to create a dataset and have followed the same steps in this link, but our implementation uses NLLoss instead of cat. softmax loss function. 
 The current implementation is meant for learninig purposes and might not be effecient in terms of speed.
 

@@ -58,9 +58,9 @@ class EmbeddingLSTM(nn.Module):
         # hidden state initialization
         if clear_state:
             if init_random:
-                state = torch.randn(1, 1, self.hidden_size)
+                state = torch.randn(1, self.batch_size, self.hidden_size)
             else:
-                state = torch.zeros(1, 1, self.hidden_size)
+                state = torch.zeros(1, self.batch_size, self.hidden_size)
             state = state.to(self.device)
             hidden_state_and_cell = (state, state)
 
