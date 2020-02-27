@@ -25,6 +25,7 @@ class EmbeddingLSTM(nn.Module):
                  num_embeddings,
                  batch_size,
                  device,
+                 embedding_layer=nn.Embedding, # nn.Embedding, nn.Linear, nn.Conv1d, ...
                  hidden_size=64, # features
                  ):
 
@@ -36,11 +37,8 @@ class EmbeddingLSTM(nn.Module):
         self.hidden_size = hidden_size
         self.device = device
   
-
-     
-
         # layers
-        self.embedding = nn.Embedding(num_embeddings=self.num_embeddings, 
+        self.embedding = embedding_layer(num_embeddings=self.num_embeddings, 
                                       embedding_dim=self.hidden_size)
         self.lstm = nn.LSTM(hidden_size, hidden_size, batch_first=True)
         # put the model in the device
