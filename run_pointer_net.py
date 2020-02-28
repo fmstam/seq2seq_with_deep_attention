@@ -39,17 +39,20 @@ random_seed = torch.manual_seed(45)
 
 # constants
 IN_FEATURES = 1 # depends on the demnationality of the input
-HIDDEN_SIZE = 64
+HIDDEN_SIZE = 256
 BATCH_SIZE = 16
 RANGE = [0, 100]
 SOS_SYMBOL = -1 # start of sequence symbol 
+DATASET_SIZE = 100000
+EPOCHS = 5
+
 
 VALIDATION_RATIO = .2
 
 
 def main():
 
-    ds = SortingDataset(range_=RANGE, SOS_SYMBOL=SOS_SYMBOL)
+    ds = SortingDataset(range_=RANGE, SOS_SYMBOL=SOS_SYMBOL,num_instance=DATASET_SIZE)
 
     # train-validate spilit
     ds_len = len(ds)
@@ -86,43 +89,41 @@ def main():
     
     # loss function and optimizer
     loss_function = nn.NLLLoss()
-    opitmizer = optim.Adam(pointer_network.parameters(), lr=0.001)
+    opitmizer = optim.Adam(pointer_network.parameters(), lr=0.0001)
 
     ################## Training #############
     print('Training ...')
-    losses = []
-    samples = []
-    train_for = 5000 # if we wish to train faster for limited number of batches
-    for batch, target_seq, _ in train_dataloader:
-        if train_for == 0:
-            break
-        train_for -= 1
+    
+    for _ in range(EPOCHS):
+        losses = []
+        samples = []
+        ds.instance_counter = 0 # reset ds counter 
+        for batch, target_seq, _ in train_dataloader:
+            _, sequence_length = batch.shape
+            # put them in the same device as the model's
+            target_seq = target_seq.to(pointer_network.device)
 
-        _, sequence_length = batch.shape
-        # put them in the same device as the model's
-        target_seq = target_seq.to(pointer_network.device)
+            # zero grad        
+            pointer_network.zero_grad()
+            pointer_network.encoder.zero_grad()
+            pointer_network.decoder_cell.zero_grad()
+            batch = batch.unsqueeze(2).float() # add another dim for features 
+            
+            # apply model
+            attentions, pointers = pointer_network(batch)
 
-        # zero grad        
-        pointer_network.zero_grad()
-        pointer_network.encoder.zero_grad()
-        pointer_network.decoder_cell.zero_grad()
-        batch = batch.unsqueeze(2).float() # add another dim for features 
-        
-        # apply model
-        attentions, pointers = pointer_network(batch)
-
-        # loss calculation
-        loss = 0
-        # can be replaced by a single elegant line, but I do it like this for better readability
-        for i in range(sequence_length):
-             loss += loss_function(attentions[:, i, :].to(pointer_network.device), target_seq[:, i])
-        #back propagate
-        loss.backward()
-        opitmizer.step()
-        # loss curve
-        losses.append(loss.detach().cpu().item())
-        # uncomment this line to check how store all training tuples
-        #samples.append((target_seq.detach().cpu().numpy(), output_seq.detach().cpu().numpy()))  
+            # loss calculation
+            loss = 0
+            # can be replaced by a single elegant line, but I do it like this for better readability
+            for i in range(sequence_length):
+                loss += loss_function(attentions[:, i, :].to(pointer_network.device), target_seq[:, i])
+            #back propagate
+            loss.backward()
+            opitmizer.step()
+            # loss curve
+            losses.append(loss.detach().cpu().item())
+            # uncomment this line to check how store all training tuples
+            samples.append((target_seq.detach().cpu().numpy(), pointers.detach().cpu().numpy()))  
 
     # plot loss
     plt.figure()

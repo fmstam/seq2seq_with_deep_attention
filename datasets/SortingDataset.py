@@ -58,8 +58,8 @@ class SortingDataset(Dataset):
         # shifted target (ugly line but compact)
         shifted_sorted_arr_args = np.concatenate((np.expand_dims(np.array(self.SOS_SYMBOL), axis=1), sorted_arr_args[:-1]), axis=0)
         # check if we need to modify the length of the instance
-        if self.instance_counter == self.num_instance:
-            self.current_gen_index += 1 # move to the next length
+        #if self.instance_counter == self.num_instance:
+        #    self.current_gen_index = 1 # move to the next length
             
         # return a tuple (input, target, shifted_target)
         item =(arr, sorted_arr_args, shifted_sorted_arr_args)        
