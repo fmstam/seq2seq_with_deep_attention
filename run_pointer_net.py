@@ -16,7 +16,7 @@ import sys
 sys.path.append("..")
 
 # local files
-from seq2seq_with_deep_attention.datasets.DateDataset import DateDataset, get_sequence_from_indexes
+from seq2seq_with_deep_attention.datasets.SortingDataset import SortingDataset
 from seq2seq_with_deep_attention.models.PointerNetwork import PointerNetwork
 
 # torch
@@ -41,33 +41,16 @@ random_seed = torch.manual_seed(45)
 IN_FEATURES = 1 # depends on the demnationality of the input
 HIDDEN_SIZE = 64
 BATCH_SIZE = 1
-SOS_SYMBOL = '\t' # start of sequence symbol
-EOS_SYMBOL= '\n'
-PADDING_SYMOBL = '_'
-VALIDATION_RATIO = .1
+RANGE = [0, 100]
+SOS_SYMBOL = -1 # start of sequence symbol 
 
-
-
-def plot_attention(attention, input_word, generated_word):
-    print('\nAttention matrix')
-    # plot last attention
-    plt.matshow(attention)
-    plt.xlabel('generated word')
-    plt.xticks(range(10),generated_word)
-    plt.ylabel('input word')
-    plt.yticks(range(12),input_word)
-    plt.show(block=False)
-
+VALIDATION_RATIO = .2
 
 
 def main():
 
-    ds = DateDataset('/home/faroq/code/seq2seq/seq2seq_with_deep_attention/datafiles/out.json', 
-                     get_index=True,
-                     sequence_length=12,
-                     SOS_SYMBOL=SOS_SYMBOL,
-                     PADDING_SYMBOL=PADDING_SYMOBL)
-    
+    ds = SortingDataset(range_=RANGE, SOS_SYMBOL=SOS_SYMBOL)
+
     # train-validate spilit
     ds_len = len(ds)
     indexes = list(range(ds_len))
@@ -82,7 +65,6 @@ def main():
     validation_sampler = SubsetRandomSampler(validation_indexes)
 
     # loaders
-
     train_dataloader = DataLoader(ds,
                             sampler=train_sampler,
                             batch_size=BATCH_SIZE,
@@ -95,11 +77,10 @@ def main():
     
 
 
-    # Loung Model
+    # The Pointer Network model
     pointer_network = PointerNetwork(in_features=IN_FEATURES,
                                  hidden_size=HIDDEN_SIZE,
                                  batch_size=BATCH_SIZE,
-                                 sos_symbol_index=ds.input_word_to_index[SOS_SYMBOL],
                                  device='gpu')
 
     
@@ -124,13 +105,13 @@ def main():
         pointer_network.encoder.zero_grad()
         pointer_network.decoder.zero_grad()
 
-        output_seq_probs, output_seq, hidden, attention, context = pointer_network(batch, target_seq_shifted)
+        attention, hidden, decoder_output = pointer_network(batch, target_seq_shifted)
 
         # loss calculation
         loss = 0
-        # can be replaced by a single elegant line, but I do it like this for better readability
-        for i in range(OUTPUT_SIZE):
-            loss += loss_function(output_seq_probs[:, i, :], target_seq[:, i])
+        # # can be replaced by a single elegant line, but I do it like this for better readability
+        # for i in range(OUTPUT_SIZE):
+        #     loss += loss_function(output_seq_probs[:, i, :], target_seq[:, i])
         # back propagate
         loss.backward()
         opitmizer.step()

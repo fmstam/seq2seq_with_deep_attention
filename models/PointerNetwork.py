@@ -24,7 +24,6 @@ class PointerNetwork(nn.Module):
                 in_features,
                 hidden_size,
                 batch_size,
-                sos_symbol_index,
                 device='cpu'):
 
         super(PointerNetwork, self).__init__()
@@ -33,7 +32,7 @@ class PointerNetwork(nn.Module):
         self.in_features = in_features
         self.hidden_size = hidden_size
         self.batch_size = batch_size
-        self.sos_symbol_index = torch.tensor(sos_symbol_index)
+
         # device
         if device is not 'cpu':
             if torch.cuda.is_available():
