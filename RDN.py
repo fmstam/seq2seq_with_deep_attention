@@ -38,8 +38,7 @@ class EmbeddingLSTM(nn.Module):
         self.device = device
   
         # layers
-        self.embedding = embedding_layer(num_embeddings=self.num_embeddings, 
-                                      embedding_dim=self.hidden_size)
+        self.embedding = embedding_layer(self.num_embeddings, self.hidden_size)
         self.lstm = nn.LSTM(hidden_size, hidden_size, batch_first=True)
         # put the model in the device
         self.to(self.device)

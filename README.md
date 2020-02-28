@@ -10,7 +10,7 @@ The current implementation is meant for learninig purposes and might not be effe
   see `Loung_seq2seq_example.ipynb`
 
 ### For TensorFlow impelementation and more useful links:
-  see, please check: https://github.com/AndreMaz/deep-attention
+  please check: https://github.com/AndreMaz/deep-attention
 
 
 ## 2- Pointer nets.
