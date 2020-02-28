@@ -93,27 +93,30 @@ def main():
     losses = []
     samples = []
     train_for = 5000 # if we wish to train faster for limited number of batches
-    for batch, target_seq, target_seq_shifted in train_dataloader:
+    for batch, target_seq, _ in train_dataloader:
         if train_for == 0:
             break
         train_for -= 1
+
+        _, sequence_length = batch.shape
         # put them in the same device as the model's
-        target_seq_shifted = target_seq_shifted.to(pointer_network.device)
         target_seq = target_seq.to(pointer_network.device)
-        # train a pointer_network seq2seq model
+
+        # zero grad        
         pointer_network.zero_grad()
         pointer_network.encoder.zero_grad()
         pointer_network.decoder_cell.zero_grad()
-        batch = batch.unsqueeze(2).float() # input feature domain
-        pointer_network(batch)
-        #attention, hidden, decoder_output = pointer_network(batch, target_seq_shifted)
+        batch = batch.unsqueeze(2).float() # add another dim for features 
+        
+        # apply model
+        attentions, pointers = pointer_network(batch)
 
         # loss calculation
         loss = 0
-        # # can be replaced by a single elegant line, but I do it like this for better readability
-        # for i in range(OUTPUT_SIZE):
-        #     loss += loss_function(output_seq_probs[:, i, :], target_seq[:, i])
-        # back propagate
+        # can be replaced by a single elegant line, but I do it like this for better readability
+        for i in range(sequence_length):
+             loss += loss_function(attentions[:, i, :].to(pointer_network.device), target_seq[:, i])
+        #back propagate
         loss.backward()
         opitmizer.step()
         # loss curve

@@ -89,8 +89,8 @@ class PointerNetwork(nn.Module):
         # 5- we iterate the above steps until we collect pointers with the same size as the input
         
         # we will use them to calculate the loss function
-        pointers = torch.empty((input_seq_length, 1))
-        attentions = torch.empty((input_seq_length, self.batch_size, input_seq_length))
+        pointers = torch.empty((self.batch_size, input_seq_length))
+        attentions = torch.empty((self.batch_size, input_seq_length, input_seq_length))
 
         # the initial state of the decoder_cell is the last state of the encoder
         decoder_cell_hidden = (hidden[0][-1, :, :], hidden[1][-1, :, :])  # each of size(num_layers=1, batch_size, hidden_size)
@@ -99,9 +99,12 @@ class PointerNetwork(nn.Module):
         #decoder_cell_input = torch.rand((self.batch_size, 1)) # one is for the feature not the step
         decoder_cell_input = torch.zeros((self.batch_size, 1)) # one is for the feature not the step
 
+
         for i in range(input_seq_length):
             # 1 - calculate decoder hidden and cell states 
-            decoder_cell_output, decoder_cell_hidden = self.decoder_cell(decoder_cell_input, decoder_cell_hidden, clear_state=False)
+            
+            decoder_cell_output, decoder_cell_hidden_state = self.decoder_cell(decoder_cell_input, decoder_cell_hidden, clear_state=False)
+            decoder_cell_hidden = (decoder_cell_output, decoder_cell_hidden_state) # because it is an LSTMCell
 
             # 2 - used decoder_cell_output and encoder_output to calculate the attention:
             # u^i_j = v^\top tanh(W_1 e_j + W_2 d_i), \forall j \in (1, \cdots, n)
@@ -109,10 +112,16 @@ class PointerNetwork(nn.Module):
             # so we remove that last dimenstion 
             u = self.v(torch.tanh(self.W_1(encoder_output) + self.W_2(decoder_cell_output).unsqueeze(1))).squeeze(2)
             # # a^i_j = softmax(u^i_j)
-            attentions[i, :, :] = F.softmax(u, dim=1) # we use the log for two reasons:
+            attentions[:, i, :] = F.log_softmax(u, dim=1) # we use the log for two reasons:
                                                  # 1- avoid doing hot_one encoding
                                                  # 2- mathematical stability
-            pointers[i] = torch.argmax(attentions[i, :, :])
+            _, max_pointer = attentions[:, i, :].max(dim=1)
+            pointers[:, i] = max_pointer
+
+            # create a new input
+            # can be refactored to a single line 
+            for j in range(self.batch_size):
+                decoder_cell_input[j, :] = input_seq[j, max_pointer[j], :]
 
         return attentions, pointers
 
