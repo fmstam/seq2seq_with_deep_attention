@@ -53,12 +53,12 @@ class SortingDataset(Dataset):
         length = self.lengths[self.gen_indices[self.current_gen_index]]
 
         ## generate an instance
-        arr = np.random.randint(low=self.range[0], high=self.range[1], size=length, dtype=np.float)
+        arr = np.random.randint(low=self.range[0], high=self.range[1], size=length)
         sorted_arr_args = np.argsort(arr) # we can obtain the actual easily by arr[sorted_arr_args]
         # shifted target (ugly line but compact)
         shifted_sorted_arr_args = np.concatenate((np.expand_dims(np.array(self.SOS_SYMBOL), axis=1), sorted_arr_args[:-1]), axis=0)
         # check if we need to modify the length of the instance
-        if self.instance_counter == length:
+        if self.instance_counter == self.num_instance:
             self.current_gen_index += 1 # move to the next length
             
         # return a tuple (input, target, shifted_target)

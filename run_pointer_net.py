@@ -40,7 +40,7 @@ random_seed = torch.manual_seed(45)
 # constants
 IN_FEATURES = 1 # depends on the demnationality of the input
 HIDDEN_SIZE = 64
-BATCH_SIZE = 1
+BATCH_SIZE = 16
 RANGE = [0, 100]
 SOS_SYMBOL = -1 # start of sequence symbol 
 
@@ -103,9 +103,10 @@ def main():
         # train a pointer_network seq2seq model
         pointer_network.zero_grad()
         pointer_network.encoder.zero_grad()
-        pointer_network.decoder.zero_grad()
-
-        attention, hidden, decoder_output = pointer_network(batch, target_seq_shifted)
+        pointer_network.decoder_cell.zero_grad()
+        batch = batch.unsqueeze(2).float() # input feature domain
+        pointer_network(batch)
+        #attention, hidden, decoder_output = pointer_network(batch, target_seq_shifted)
 
         # loss calculation
         loss = 0

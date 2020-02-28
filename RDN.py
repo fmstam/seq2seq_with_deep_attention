@@ -19,6 +19,8 @@ import torch.optim as optim
 
 torch.manual_seed(1)
 
+
+
 class EmbeddingLSTM(nn.Module):
     """ A generic LSTM encoder """
     def __init__(self,
@@ -26,6 +28,7 @@ class EmbeddingLSTM(nn.Module):
                  device,
                  embedding_layer, # nn.Embedding, nn.Linear, nn.Conv1d, ...
                  hidden_size=64, # features
+                 lstm_cell=False
                  ):
 
         super().__init__()
@@ -37,7 +40,10 @@ class EmbeddingLSTM(nn.Module):
   
         # layers
         self.embedding = embedding_layer
-        self.lstm = nn.LSTM(hidden_size, hidden_size, batch_first=True)
+        if lstm_cell:
+            self.lstm = nn.LSTMCell(hidden_size, hidden_size)
+        else:
+            self.lstm = nn.LSTM(hidden_size, hidden_size, batch_first=True)
         # put the model in the device
         self.to(self.device)
 
