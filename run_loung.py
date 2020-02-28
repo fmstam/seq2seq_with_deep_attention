@@ -37,7 +37,6 @@ import math
 
 
 
-random_seed = torch.manual_seed(45)
 
 # constants
 INPUT_SIZE = 12
@@ -60,7 +59,6 @@ def plot_attention(attention, input_word, generated_word):
     plt.ylabel('input word')
     plt.yticks(range(12),input_word)
     plt.show(block=False)
-
 
 
 def main():

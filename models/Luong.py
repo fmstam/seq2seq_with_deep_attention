@@ -74,21 +74,21 @@ class LuongGlobalAttention(nn.Module):
         self.device = device
 
         # encoder/decoder
-        self.encoder = EmbeddingLSTM(self.input_num_embeddings,
+        self.encoder = EmbeddingLSTM(embedding_layer=nn.Embedding(num_embeddings=self.input_num_embeddings, embedding_dim=self.hidden_size),
                                batch_size=self.batch_size,
                                hidden_size=self.hidden_size,
                                device=self.device
                                )
-        self.decoder = EmbeddingLSTM(self.output_num_embeddings,
+        self.decoder = EmbeddingLSTM(embedding_layer=nn.Embedding(num_embeddings=self.output_num_embeddings, embedding_dim=self.hidden_size),
                                hidden_size=self.hidden_size,
                                batch_size=self.batch_size,
                                device=self.device)
 
-        # since we concatenate the h states of the decoder with the context the output
+        #  since we concatenate the h states of the decoder with the context the output
         #  is twice the hidden size, and the output is the same size as the length of the 
         #  output vocabs.
         self.fc = nn.Linear(self.hidden_size * 2, self.output_size) 
-
+        # place it in the same device as the model
         self.to(self.device)
 
 

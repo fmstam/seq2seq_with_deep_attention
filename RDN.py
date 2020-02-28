@@ -22,23 +22,21 @@ torch.manual_seed(1)
 class EmbeddingLSTM(nn.Module):
     """ A generic LSTM encoder """
     def __init__(self,
-                 num_embeddings,
                  batch_size,
                  device,
-                 embedding_layer=nn.Embedding, # nn.Embedding, nn.Linear, nn.Conv1d, ...
+                 embedding_layer, # nn.Embedding, nn.Linear, nn.Conv1d, ...
                  hidden_size=64, # features
                  ):
 
         super().__init__()
 
         # attributes
-        self.num_embeddings = num_embeddings
         self.batch_size = batch_size
         self.hidden_size = hidden_size
         self.device = device
   
         # layers
-        self.embedding = embedding_layer(self.num_embeddings, self.hidden_size)
+        self.embedding = embedding_layer
         self.lstm = nn.LSTM(hidden_size, hidden_size, batch_first=True)
         # put the model in the device
         self.to(self.device)

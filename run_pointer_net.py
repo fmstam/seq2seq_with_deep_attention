@@ -15,11 +15,9 @@ __status__ = "Production"
 import sys
 sys.path.append("..")
 
-
-
 # local files
 from seq2seq_with_deep_attention.datasets.DateDataset import DateDataset, get_sequence_from_indexes
-from seq2seq_with_deep_attention.models.PointerNetwork as PointerNetwork
+from seq2seq_with_deep_attention.models.PointerNetwork import PointerNetwork
 
 # torch
 import torch
@@ -40,8 +38,7 @@ import math
 random_seed = torch.manual_seed(45)
 
 # constants
-INPUT_SIZE = 12
-OUTPUT_SIZE = 10
+IN_FEATURES = 1 # depends on the demnationality of the input
 HIDDEN_SIZE = 64
 BATCH_SIZE = 1
 SOS_SYMBOL = '\t' # start of sequence symbol
@@ -67,7 +64,7 @@ def main():
 
     ds = DateDataset('/home/faroq/code/seq2seq/seq2seq_with_deep_attention/datafiles/out.json', 
                      get_index=True,
-                     sequence_length=INPUT_SIZE,
+                     sequence_length=12,
                      SOS_SYMBOL=SOS_SYMBOL,
                      PADDING_SYMBOL=PADDING_SYMOBL)
     
@@ -99,12 +96,10 @@ def main():
 
 
     # Loung Model
-    pointer_network = PointerNetwork(input_num_embeddings=len(ds.input_vocab),
-                                 output_num_embeddings=len(ds.output_vocab),
+    pointer_network = PointerNetwork(in_features=IN_FEATURES,
                                  hidden_size=HIDDEN_SIZE,
                                  batch_size=BATCH_SIZE,
                                  sos_symbol_index=ds.input_word_to_index[SOS_SYMBOL],
-                                 padding_symbol_index=ds.input_word_to_index[PADDING_SYMOBL],
                                  device='gpu')
 
     
@@ -130,7 +125,7 @@ def main():
         pointer_network.decoder.zero_grad()
 
         output_seq_probs, output_seq, hidden, attention, context = pointer_network(batch, target_seq_shifted)
-        
+
         # loss calculation
         loss = 0
         # can be replaced by a single elegant line, but I do it like this for better readability

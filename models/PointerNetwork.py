@@ -19,20 +19,18 @@ import torch.optim as optim
 
 from seq2seq_with_deep_attention.RDN import EmbeddingLSTM
 
-class PointerNet(nn.Module):
+class PointerNetwork(nn.Module):
     def __init__(self,  
-                input_num_embeddings,
-                output_num_embeddings,
+                in_features,
                 hidden_size,
                 batch_size,
                 sos_symbol_index,
                 device='cpu'):
 
-        super(PointerNet, self).__init__()
+        super(PointerNetwork, self).__init__()
 
         # attributes
-        self.input_num_embeddings = input_num_embeddings
-        self.output_num_embeddings = output_num_embeddings
+        self.in_features = in_features
         self.hidden_size = hidden_size
         self.batch_size = batch_size
         self.sos_symbol_index = torch.tensor(sos_symbol_index)
@@ -43,14 +41,12 @@ class PointerNet(nn.Module):
         self.device = device
 
         # encoder/decoder
-        self.encoder = EmbeddingLSTM(self.input_num_embeddings,
-                                embedding_layer=nn.Linear,
+        self.encoder = EmbeddingLSTM(embedding_layer=nn.Linear(in_features=in_features, out_features=hidden_size),
                                 batch_size=self.batch_size,
                                 hidden_size=self.hidden_size,
                                 device=self.device
                                 )
-        self.decoder = EmbeddingLSTM(self.output_num_embeddings,
-                                embedding_layer=nn.Linear,
+        self.decoder = EmbeddingLSTM(embedding_layer=nn.Linear(in_features=in_features, out_features=hidden_size),
                                 hidden_size=self.hidden_size,
                                 batch_size=self.batch_size,
                                 device=self.device)
@@ -63,11 +59,12 @@ class PointerNet(nn.Module):
 
         self.W_1 = nn.Linear(in_features=hidden_size, out_features=hidden_size)
         self.W_2 = nn.Linear(in_features=hidden_size, out_features=hidden_size)
-        self.v = nn.Parameter(torch.FloatTensor(1, hidden_size))
+        self.v = nn.Parameter(torch.Tensor(1, hidden_size))
 
     def forward(self, input_seq, shifted_input_seq):
         """
-        
+        Calculate the attention
+
         keyword argumenents:
         input_seq -- the input sequence (batch_size, sequence_size, hidden_size)
         shifted_target_seq -- the output sequence shifted one symbol (batch_size, sequence_size, hidden_size)
@@ -95,9 +92,4 @@ class PointerNet(nn.Module):
 
         return attention, hidden, decoder_output
 
-
-
-
-
-        
 
