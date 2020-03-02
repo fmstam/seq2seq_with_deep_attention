@@ -43,17 +43,17 @@ HIDDEN_SIZE = 256
 BATCH_SIZE = 16
 RANGE = [0, 100]
 SOS_SYMBOL = -1 # start of sequence symbol 
-DATASET_SIZE = 100000
-EPOCHS = 5
+DATASET_SIZE = 20000
+EPOCHS = 100
 
 
 VALIDATION_RATIO = .2
 
 
+
 def main():
 
-    ds = SortingDataset(range_=RANGE, SOS_SYMBOL=SOS_SYMBOL,num_instance=DATASET_SIZE)
-
+    ds = SortingDataset(range_=RANGE, SOS_SYMBOL=SOS_SYMBOL, num_instances=DATASET_SIZE)
     # train-validate spilit
     ds_len = len(ds)
     indexes = list(range(ds_len))
@@ -93,12 +93,11 @@ def main():
 
     ################## Training #############
     print('Training ...')
-    
+    pointer_network.train()
+    epochs_loss = []
     for _ in range(EPOCHS):
         losses = []
-        samples = []
-        ds.instance_counter = 0 # reset ds counter 
-        for batch, target_seq, _ in train_dataloader:
+        for batch, target_seq in train_dataloader:
             _, sequence_length = batch.shape
             # put them in the same device as the model's
             target_seq = target_seq.to(pointer_network.device)
@@ -123,15 +122,28 @@ def main():
             # loss curve
             losses.append(loss.detach().cpu().item())
             # uncomment this line to check how store all training tuples
-            samples.append((target_seq.detach().cpu().numpy(), pointers.detach().cpu().numpy()))  
+            #samples.append((target_seq.detach().cpu().numpy(), pointers.detach().cpu().numpy()))  
+        epochs_loss.append(sum(losses) / len(losses))
 
     # plot loss
     plt.figure()
     plt.title("Training")
-    plt.plot(losses)
-    plt.xlabel('step')
-    plt.ylabel('loss')
+    plt.plot(epochs_loss)
+    plt.xlabel('Episode')
+    plt.ylabel('Loss')
     plt.show(block=False)
+
+    ################## Training #############
+    print('Validation ...')
+    pointer_network.eval()
+    for batch, target_seq in validation_dataloader:
+        if batch.shape[0] < BATCH_SIZE:
+            break # ingonre last small batch, can be padded although
+        batch = batch.unsqueeze(2).float() # add another dim for features 
+        attentions, pointers = pointer_network(batch)
+        res_tuple = (target_seq.numpy(), pointers.detach().cpu().numpy())
+        print(res_tuple)
+
 
 if __name__ is '__main__':
     main()
