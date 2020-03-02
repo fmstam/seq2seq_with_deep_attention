@@ -1,7 +1,7 @@
 ###!/usr/bin/env python
 #%%
 """ 
-Example for date conversion
+Pointer networks example
 """
 __author__ = "AL-Tam Faroq"
 __copyright__ = "Copyright 2020, UALG"
