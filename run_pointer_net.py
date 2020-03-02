@@ -1,5 +1,5 @@
 ###!/usr/bin/env python
-#%%
+#%% Pointer networks example
 """ 
 Pointer networks example
 """
@@ -40,11 +40,11 @@ random_seed = torch.manual_seed(45)
 # constants
 IN_FEATURES = 1 # depends on the demnationality of the input
 HIDDEN_SIZE = 256
-BATCH_SIZE = 16
+BATCH_SIZE = 64
 RANGE = [0, 100]
 SOS_SYMBOL = -1 # start of sequence symbol 
-DATASET_SIZE = 20000
-EPOCHS = 100
+DATASET_SIZE = 50000
+EPOCHS = 25
 
 
 VALIDATION_RATIO = .2
@@ -89,7 +89,7 @@ def main():
     
     # loss function and optimizer
     loss_function = nn.NLLLoss()
-    opitmizer = optim.Adam(pointer_network.parameters(), lr=0.0001)
+    opitmizer = optim.Adam(pointer_network.parameters(), lr=0.00005)
 
     ################## Training #############
     print('Training ...')
@@ -134,16 +134,19 @@ def main():
     plt.show(block=False)
 
     ################## Training #############
-    print('Validation ...')
+    print('\nValidation ...')
+    print('\ninput\ttarget\tpointer')
     pointer_network.eval()
-    for batch, target_seq in validation_dataloader:
+    for batch, target_sequences in validation_dataloader:
         if batch.shape[0] < BATCH_SIZE:
             break # ingonre last small batch, can be padded although
         batch = batch.unsqueeze(2).float() # add another dim for features 
         attentions, pointers = pointer_network(batch)
-        res_tuple = (target_seq.numpy(), pointers.detach().cpu().numpy())
-        print(res_tuple)
 
+        pointers = pointers.detach().cpu().numpy().astype(int)
+        input_sequences = batch.squeeze(2).detach().cpu().numpy().astype(int)
+        for input_seq, target_seq, pointer in zip(input_sequences, target_sequences, pointers):
+            print(input_seq, input_seq[target_seq], input_seq[pointer])
 
 if __name__ is '__main__':
     main()
