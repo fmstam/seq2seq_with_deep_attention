@@ -49,7 +49,7 @@ class EmbeddingLSTM(nn.Module):
 
     
     def forward(self, x, hidden_state_and_cell=None, clear_state=True, init_random=False):
-        """ The encoder size which takes:
+        """ The encoder which takes:
 
         keyward arguments:
         x -- input, expected to be a tensor being loaded in the same device as the model
@@ -73,7 +73,7 @@ class EmbeddingLSTM(nn.Module):
         embd = self.embedding(x) # first step
         encoder_output, hidden_state_and_cell = self.lstm(embd, hidden_state_and_cell)
 
-        return encoder_output, hidden_state_and_cell
+        return encoder_output, hidden_state_and_cell, embd
     
 
 

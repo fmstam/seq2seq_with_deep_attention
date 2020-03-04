@@ -71,15 +71,14 @@ class PointerNetwork(nn.Module):
 
     def forward(self, input_seq):
         """
-        Calculate the attention
+        Calculate the attention and produce the pointers
         
         keyword argumenents:
         input_seq -- the input sequence (batch_size, sequence_size, hidden_size)
-        shifted_target_seq -- the output sequence shifted one symbol (batch_size, sequence_size, hidden_size)
         """
         _, input_seq_length,_ = input_seq.shape
         ## get the encoder output
-        encoder_output, hidden = self.encoder(input_seq)
+        encoder_output, hidden, _ = self.encoder(input_seq) # it returns output, hidden, embed
 
         ## get the decoder output
         # 1- we start by inserting the random or zeros to the encoder_cell
@@ -103,7 +102,7 @@ class PointerNetwork(nn.Module):
         for i in range(input_seq_length):
             # 1 - calculate decoder hidden and cell states 
             
-            decoder_cell_output, decoder_cell_hidden_state = self.decoder_cell(decoder_cell_input, decoder_cell_hidden, clear_state=False)
+            decoder_cell_output, decoder_cell_hidden_state, _ = self.decoder_cell(decoder_cell_input, decoder_cell_hidden, clear_state=False)
             decoder_cell_hidden = (decoder_cell_output, decoder_cell_hidden_state) # because it is an LSTMCell
 
             # 2 - used decoder_cell_output and encoder_output to calculate the attention:

@@ -7,6 +7,7 @@ import seq2seq_with_deep_attention.run_pointer_net as run_pointer_net
 random_seed = torch.manual_seed(45)
 
 def main():
+    # uncommnet the model line to test it
     #run_loung.main()
     run_pointer_net.main()
 
