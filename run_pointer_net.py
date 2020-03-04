@@ -1,5 +1,6 @@
 ###!/usr/bin/env python
 #%% Pointer networks example
+
 """ 
 Pointer networks example
 """
@@ -44,7 +45,7 @@ BATCH_SIZE = 64
 RANGE = [0, 100]
 SOS_SYMBOL = -1 # start of sequence symbol 
 DATASET_SIZE = 50000
-EPOCHS = 1
+EPOCHS = 50
 
 
 VALIDATION_RATIO = .2
@@ -178,7 +179,8 @@ def main():
         i = 0
         for input_seq, target_seq, pointer in zip(input_sequences, target_sequences, pointers):
             print(input_seq, input_seq[target_seq], input_seq[pointer])
-            plot_attention(attentions[i].detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(12, 12))
+            plot_attention(attentions[i].t().detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(12, 12))
+            i += 1
 
 
 if __name__ is '__main__':
