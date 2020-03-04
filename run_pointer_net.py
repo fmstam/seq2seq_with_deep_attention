@@ -40,7 +40,7 @@ random_seed = torch.manual_seed(45)
 # constants
 IN_FEATURES = 1 # depends on the demnationality of the input
 HIDDEN_SIZE = 256
-BATCH_SIZE = 64
+BATCH_SIZE = 32
 RANGE = [0, 100]
 SOS_SYMBOL = -1 # start of sequence symbol 
 DATASET_SIZE = 50000
@@ -89,7 +89,7 @@ def main():
     
     # loss function and optimizer
     loss_function = nn.NLLLoss()
-    opitmizer = optim.Adam(pointer_network.parameters(), lr=0.00005)
+    opitmizer = optim.Adam(pointer_network.parameters(), lr=0.0005)
 
     ################## Training #############
     print('Training ...')
@@ -133,8 +133,8 @@ def main():
     plt.ylabel('Loss')
     plt.show(block=False)
 
-    ################## Training #############
-    print('\nValidation ...')
+    ################## Validation #############
+    print('\n\n\nValidation ...')
     print('\ninput\ttarget\tpointer')
     pointer_network.eval()
     for batch, target_sequences in validation_dataloader:
@@ -147,6 +147,24 @@ def main():
         input_sequences = batch.squeeze(2).detach().cpu().numpy().astype(int)
         for input_seq, target_seq, pointer in zip(input_sequences, target_sequences, pointers):
             print(input_seq, input_seq[target_seq], input_seq[pointer])
+
+     ################## Testing #############
+    print('\n\n\n Testing of higher length 15')
+    ds = SortingDataset(range_=RANGE, lengths=[15], SOS_SYMBOL=SOS_SYMBOL, num_instances=100)
+    test_dataloader = DataLoader(ds,
+                            batch_size=BATCH_SIZE,
+                            num_workers=0)
+    for batch, target_sequences in test_dataloader:
+        if batch.shape[0] < BATCH_SIZE:
+            break # ingonre last small batch, can be padded although
+        batch = batch.unsqueeze(2).float() # add another dim for features 
+        attentions, pointers = pointer_network(batch)
+
+        pointers = pointers.detach().cpu().numpy().astype(int)
+        input_sequences = batch.squeeze(2).detach().cpu().numpy().astype(int)
+        for input_seq, target_seq, pointer in zip(input_sequences, target_sequences, pointers):
+            print(input_seq, input_seq[target_seq], input_seq[pointer])
+
 
 if __name__ is '__main__':
     main()
