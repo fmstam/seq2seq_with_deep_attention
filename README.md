@@ -1,6 +1,11 @@
 # Sequence to sequence with attention (seq2seq-with-deep-attention)
 
-This work is the pytorch implementation of some sequence to sequence models including:
+This work is the minimal pytorch implementation of some sequence to sequence models.
+
+## Settings:
+# pytorch 1.4.0
+# python 3.7.6
+
 
 ## 1- Loung seq2seq model.
  We have used the date generation code from https://github.com/tensorflow/tfjs-examples/tree/master/date-conversion-attention to create a dataset and have followed the same steps in this link, but our implementation uses NLLoss instead of cat. softmax loss function. 
