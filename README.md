@@ -21,5 +21,8 @@ The current implementation is meant for learninig purposes and might not be effe
 ## 2- Pointer nets.
  This is simillar to the previouse model but in this case we use the softmax output to point back to the input. Thus making the output and input length consistent and removes the limitation in predefining a fixed output length. For more details see the https://arxiv.org/abs/1506.03134
 
+ ### To run:
+  see `pointer_net_example.ipynb`
+
 
 
