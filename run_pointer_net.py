@@ -40,11 +40,11 @@ random_seed = torch.manual_seed(45)
 # constants
 IN_FEATURES = 1 # depends on the demnationality of the input
 HIDDEN_SIZE = 256
-BATCH_SIZE = 32
+BATCH_SIZE = 128
 RANGE = [0, 100]
 SOS_SYMBOL = -1 # start of sequence symbol 
 DATASET_SIZE = 50000
-EPOCHS = 25
+EPOCHS = 50
 
 
 VALIDATION_RATIO = .2
@@ -84,6 +84,7 @@ def main():
     pointer_network = PointerNetwork(in_features=IN_FEATURES,
                                  hidden_size=HIDDEN_SIZE,
                                  batch_size=BATCH_SIZE,
+                                 sos_symbol=SOS_SYMBOL,
                                  device='gpu')
 
     
@@ -131,7 +132,7 @@ def main():
     plt.plot(epochs_loss)
     plt.xlabel('Episode')
     plt.ylabel('Loss')
-    plt.show(block=False)
+    plt.show()
 
     ################## Validation #############
     print('\n\n\nValidation ...')
@@ -139,7 +140,7 @@ def main():
     pointer_network.eval()
     for batch, target_sequences in validation_dataloader:
         if batch.shape[0] < BATCH_SIZE:
-            break # ingonre last small batch, can be padded although
+            break # ignore last small batch, can be padded although
         batch = batch.unsqueeze(2).float() # add another dim for features 
         attentions, pointers = pointer_network(batch)
 

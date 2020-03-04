@@ -26,6 +26,7 @@ class PointerNetwork(nn.Module):
                 in_features,
                 hidden_size,
                 batch_size,
+                sos_symbol=-1,
                 device='cpu'):
 
         super(PointerNetwork, self).__init__()
@@ -34,6 +35,7 @@ class PointerNetwork(nn.Module):
         self.in_features = in_features
         self.hidden_size = hidden_size
         self.batch_size = batch_size
+        self.sos_symbol = sos_symbol
 
         # device
         if device is not 'cpu':
@@ -94,9 +96,10 @@ class PointerNetwork(nn.Module):
         # the initial state of the decoder_cell is the last state of the encoder
         decoder_cell_hidden = (hidden[0][-1, :, :], hidden[1][-1, :, :])  # each of size(num_layers=1, batch_size, hidden_size)
        
-        # initialize the first input to the decoder_cell, zeros or random
+        # initialize the first input to the decoder_cell, zeros, random, or using the sos_symbol
         #decoder_cell_input = torch.rand((self.batch_size, 1)) # one is for the feature not the step
-        decoder_cell_input = torch.zeros((self.batch_size, 1)) # one is for the feature not the step
+        #decoder_cell_input = torch.zeros((self.batch_size, 1)) # one is for the feature not the step
+        decoder_cell_input = torch.ones((self.batch_size, 1)) * self.sos_symbol # one is for the feature not the step
 
 
         for i in range(input_seq_length):
@@ -118,7 +121,7 @@ class PointerNetwork(nn.Module):
             pointers[:, i] = max_pointer
 
             # create a new input
-            # can be refactored to a single line 
+            # can be refactored to a single line but this is more readable
             for j in range(self.batch_size):
                 decoder_cell_input[j, :] = input_seq[j, max_pointer[j], :]
 
