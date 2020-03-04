@@ -40,15 +40,25 @@ random_seed = torch.manual_seed(45)
 # constants
 IN_FEATURES = 1 # depends on the demnationality of the input
 HIDDEN_SIZE = 256
-BATCH_SIZE = 128
+BATCH_SIZE = 64
 RANGE = [0, 100]
 SOS_SYMBOL = -1 # start of sequence symbol 
 DATASET_SIZE = 50000
-EPOCHS = 50
+EPOCHS = 1
 
 
 VALIDATION_RATIO = .2
 
+
+def plot_attention(attention, input_word, generated_word, size_=(10,12)):
+    print('\nAttention matrix')
+    # plot last attention
+    plt.matshow(attention)
+    plt.xlabel('generated word')
+    plt.xticks(range(size_[0]),generated_word)
+    plt.ylabel('input word')
+    plt.yticks(range(size_[1]),input_word)
+    plt.show(block=False)
 
 
 def main():
@@ -134,8 +144,9 @@ def main():
     plt.ylabel('Loss')
     plt.show()
 
+
     ################## Validation #############
-    print('\n\n\nValidation ...')
+    print('\nValidation ...\n')
     print('\ninput\ttarget\tpointer')
     pointer_network.eval()
     for batch, target_sequences in validation_dataloader:
@@ -150,8 +161,9 @@ def main():
             print(input_seq, input_seq[target_seq], input_seq[pointer])
 
      ################## Testing #############
-    print('\n\n\n Testing of higher length 15')
-    ds = SortingDataset(range_=RANGE, lengths=[15], SOS_SYMBOL=SOS_SYMBOL, num_instances=100)
+    print('\n\n\n Testing of higher length 12')
+    print('\ninput\ttarget\tpointer')
+    ds = SortingDataset(range_=RANGE, lengths=[12], SOS_SYMBOL=SOS_SYMBOL, num_instances=100)
     test_dataloader = DataLoader(ds,
                             batch_size=BATCH_SIZE,
                             num_workers=0)
@@ -163,8 +175,10 @@ def main():
 
         pointers = pointers.detach().cpu().numpy().astype(int)
         input_sequences = batch.squeeze(2).detach().cpu().numpy().astype(int)
+        i = 0
         for input_seq, target_seq, pointer in zip(input_sequences, target_sequences, pointers):
             print(input_seq, input_seq[target_seq], input_seq[pointer])
+            plot_attention(attentions[i].detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(12, 12))
 
 
 if __name__ is '__main__':

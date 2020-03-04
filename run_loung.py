@@ -50,14 +50,14 @@ VALIDATION_RATIO = .1
 
 
 
-def plot_attention(attention, input_word, generated_word):
+def plot_attention(attention, input_word, generated_word, size_=(10,12)):
     print('\nAttention matrix')
     # plot last attention
     plt.matshow(attention)
     plt.xlabel('generated word')
-    plt.xticks(range(10),generated_word)
+    plt.xticks(range(size_[0]),generated_word)
     plt.ylabel('input word')
-    plt.yticks(range(12),input_word)
+    plt.yticks(range(size_[1]),input_word)
     plt.show(block=False)
 
 
