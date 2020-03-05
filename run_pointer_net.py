@@ -44,10 +44,10 @@ random_seed = torch.manual_seed(45)
 # constants
 IN_FEATURES = 1 # depends on the demnationality of the input
 HIDDEN_SIZE = 256
-BATCH_SIZE = 16
-RANGE = [0, 1000] # range of generated numbers in a sequence
+BATCH_SIZE = 128
+RANGE = [0, 100] # range of generated numbers in a sequence
 SOS_SYMBOL = -1 # start of sequence symbol 
-DATASET_SIZE = 50000
+DATASET_SIZE = 10000
 EPOCHS = 50
 
 
@@ -94,7 +94,11 @@ def main():
     for _ in range(EPOCHS):
         losses = []
         for batch, target_seq in train_dataloader:
-            _, sequence_length = batch.shape
+            
+            # handel last batch size problem
+            batch_size, sequence_length = batch.shape
+            pointer_network.update_batch_size(batch_size)
+
             # put them in the same device as the model's
             target_seq = target_seq.to(pointer_network.device)
 
@@ -131,13 +135,14 @@ def main():
 
     ################## Testing #############
     pointer_network.eval() # trun off gradient tracking
-    test_sequence_length = 20
+    test_sequence_length = 12
     print('\n\n\nTesting using  a higher length %d'% test_sequence_length)
-    print('\ninput\ttarget\tpointer')
+    
     ds = SortingDataset(range_=RANGE, lengths=[test_sequence_length], SOS_SYMBOL=SOS_SYMBOL, num_instances=100)
     test_dataloader = DataLoader(ds,
                             batch_size=BATCH_SIZE,
                             num_workers=0)
+    print('\ninput\ttarget\tpointer')
     for batch, target_sequences in test_dataloader:
         if batch.shape[0] < BATCH_SIZE:
             break # ingonre last small batch, can be padded although

@@ -24,6 +24,8 @@ from torch.utils.data import Dataset, DataLoader
 class SortingDataset(Dataset):
 
     def __init__(self,
+                use_weights=False,  # if True then number are weighed. That is each element in the sequence is a tuple:
+                                   # (weight, number) and when sorting them we use weight*number to rate each element.
                 range_=[0, 100], # min and max numbers to be expected in an instance
                 SOS_SYMBOL=-1, # start-of-sequence symbol used for padding the input to the decoder
                 lengths=[10, 15, 20],
@@ -36,8 +38,6 @@ class SortingDataset(Dataset):
         self.gen_indices = gen_indices
         self.num_instances = num_instances
 
-        
-
         # generating a dataset
         print('Generating a dataset ...')
         l = len(self)
@@ -45,6 +45,11 @@ class SortingDataset(Dataset):
         for i in range(l):
             j = math.floor(i / self.num_instances)
             arr = np.random.randint(low=self.range[0], high=self.range[1], size=self.lengths[j])
+            if use_weights:
+                weights = np.random.rand(self.lengths[j], 1)
+            else:
+                weights = np.ones_like(arr)
+            arr = arr * weights
             sorted_arr_args = np.argsort(arr)
             self.ds.append((arr, sorted_arr_args))
 

@@ -71,6 +71,11 @@ class PointerNetwork(nn.Module):
 
         self.to(self.device)
 
+    def update_batch_size(self, batch_size):
+        self.batch_size = batch_size
+        self.encoder.batch_size = batch_size
+        self.decoder_cell.batch_size = batch_size
+
     def forward(self, input_seq):
         """
         Calculate the attention and produce the pointers
