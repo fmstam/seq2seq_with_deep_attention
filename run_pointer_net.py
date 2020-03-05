@@ -47,7 +47,7 @@ HIDDEN_SIZE = 256
 BATCH_SIZE = 128
 RANGE = [0, 100] # range of generated numbers in a sequence
 SOS_SYMBOL = -1 # start of sequence symbol 
-DATASET_SIZE = 10000
+DATASET_SIZE = 20000
 EPOCHS = 50
 
 
@@ -96,8 +96,8 @@ def main():
         for batch, target_seq in train_dataloader:
             
             # handel last batch size problem
-            batch_size, sequence_length = batch.shape
-            pointer_network.update_batch_size(batch_size)
+            last_batch_size, sequence_length = batch.shape
+            pointer_network.update_batch_size(last_batch_size)
 
             # put them in the same device as the model's
             target_seq = target_seq.to(pointer_network.device)
@@ -136,16 +136,16 @@ def main():
     ################## Testing #############
     pointer_network.eval() # trun off gradient tracking
     test_sequence_length = 12
+    test_batches = 1 # one batch for testing
     print('\n\n\nTesting using  a higher length %d'% test_sequence_length)
     
-    ds = SortingDataset(range_=RANGE, lengths=[test_sequence_length], SOS_SYMBOL=SOS_SYMBOL, num_instances=100)
+    ds = SortingDataset(range_=RANGE, lengths=[test_sequence_length], SOS_SYMBOL=SOS_SYMBOL, num_instances=test_batches*last_batch_size)
     test_dataloader = DataLoader(ds,
-                            batch_size=BATCH_SIZE,
+                            batch_size=last_batch_size,
                             num_workers=0)
     print('\ninput\ttarget\tpointer')
     for batch, target_sequences in test_dataloader:
-        if batch.shape[0] < BATCH_SIZE:
-            break # ingonre last small batch, can be padded although
+
         batch = batch.unsqueeze(2).float() # add another dim for features 
         attentions, pointers = pointer_network(batch)
 
