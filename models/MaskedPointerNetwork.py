@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """ 
-    Pointer Networks
+    Pointer Networks with masking.
+    Simillar to the original pointer network but we use masking to avoid pointing twice to the same input.
+    
     https://arxiv.org/abs/1506.03134
 """
 __author__ = "AL-Tam Faroq"
@@ -20,8 +22,9 @@ import torch.optim as optim
 import numpy as np
 
 from seq2seq_with_deep_attention.RDN import EmbeddingLSTM
+from seq2seq_with_deep_attention.helpers import masked_log_softmax, masked_max
 
-class PointerNetwork(nn.Module):
+class MaskedPointerNetwork(nn.Module):
     def __init__(self,  
                 in_features,
                 hidden_size,
@@ -29,7 +32,7 @@ class PointerNetwork(nn.Module):
                 sos_symbol=-1,
                 device='cpu'):
 
-        super(PointerNetwork, self).__init__()
+        super(MaskedPointerNetwork, self).__init__()
 
         # attributes
         self.in_features = in_features
@@ -106,6 +109,7 @@ class PointerNetwork(nn.Module):
         #decoder_cell_input = torch.zeros((self.batch_size, 1)) # one is for the feature not the step
         decoder_cell_input = torch.ones((self.batch_size, 1)) * self.sos_symbol # one is for the feature not the step
 
+        mask = torch.zeros((self.batch_size, input_seq_length)).to(self.device) # to avoid pointing twice to the same element
 
         for i in range(input_seq_length):
             # 1 - calculate decoder hidden and cell states 
@@ -115,16 +119,19 @@ class PointerNetwork(nn.Module):
 
             # 2 - used decoder_cell_output and encoder_output to calculate the attention:
             # u^i_j = v^\top tanh(W_1 e_j + W_2 d_i), \forall j \in (1, \cdots, n)
-            # size of u is (batch_size, sequence_length, 1)
-            # so we remove that last dimenstion 
-                                    # (batch_size X sequence_size X features)  (batch_size X 1 X features)
             u = self.v(torch.tanh(self.W_1(encoder_output) + self.W_2(decoder_cell_output).unsqueeze(1))).squeeze(2)
             # # a^i_j = softmax(u^i_j)
+            u -= mask * 10e2
             attentions[:, i, :] = F.log_softmax(u, dim=1) # we use the log for two reasons:
                                                  # 1- avoid doing hot_one encoding
                                                  # 2- mathematical stability
             _, max_pointer = attentions[:, i, :].max(dim=1)
+            #_, max_pointer = masked_max(attentions[:, i, :].to(self.device), mask, dim=1)
+            
             pointers[:, i] = max_pointer
+            
+            # update mask
+            mask[range(self.batch_size), max_pointer] = 1
 
             # create a new input
             # can be refactored to a single line but this is more readable

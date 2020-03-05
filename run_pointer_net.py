@@ -22,6 +22,7 @@ sys.path.append("..")
 # local files
 from seq2seq_with_deep_attention.datasets.SortingDataset import SortingDataset
 from seq2seq_with_deep_attention.models.PointerNetwork import PointerNetwork
+from seq2seq_with_deep_attention.models.MaskedPointerNetwork import MaskedPointerNetwork
 
 # torch
 import torch
@@ -47,7 +48,7 @@ HIDDEN_SIZE = 256
 BATCH_SIZE = 128
 RANGE = [0, 100] # range of generated numbers in a sequence
 SOS_SYMBOL = -1 # start of sequence symbol 
-DATASET_SIZE = 20000
+DATASET_SIZE = 5000
 EPOCHS = 50
 
 
@@ -76,7 +77,8 @@ def main():
 
 
     # The Pointer Network model
-    pointer_network = PointerNetwork(in_features=IN_FEATURES,
+                     # use PointerNetwork for an unmasked version
+    pointer_network = MaskedPointerNetwork(in_features=IN_FEATURES,
                                  hidden_size=HIDDEN_SIZE,
                                  batch_size=BATCH_SIZE,
                                  sos_symbol=SOS_SYMBOL,
@@ -85,7 +87,7 @@ def main():
     
     # loss function and optimizer
     loss_function = nn.NLLLoss()
-    opitmizer = optim.Adam(pointer_network.parameters(), lr=0.0005)
+    opitmizer = optim.Adam(pointer_network.parameters(), lr=0.00025)
 
     ################## Training #############
     print('Training ...')

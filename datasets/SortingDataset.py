@@ -51,10 +51,10 @@ class SortingDataset(Dataset):
                 weights = np.ones_like(arr)
             arr = arr * weights    
             sorted_arr_args = np.argsort(arr)
-
-            # if use_weights: # then input element has two numbers
-            #     arr
-            self.ds.append((arr, sorted_arr_args))
+            if use_weights:
+                self.ds.append((arr, weights, sorted_arr_args))
+            else:
+                self.ds.append((arr, sorted_arr_args))
 
 
     def __len__(self):
