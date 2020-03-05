@@ -5,6 +5,7 @@
 Pointer networks example:
 
 This example shows how to use pointer networks to sort numbers.
+This example uses multiple features in the input elements to the encoder
 
 """
 __author__ = "AL-Tam Faroq"
@@ -42,15 +43,13 @@ import math
 random_seed = torch.manual_seed(45)
 
 # constants
-IN_FEATURES = 1 # depends on the demnationality of the input
+IN_FEATURES = 2 # depends on the demnationality of the input
 HIDDEN_SIZE = 256
-BATCH_SIZE = 16
+BATCH_SIZE = 64
 RANGE = [0, 1000] # range of generated numbers in a sequence
 SOS_SYMBOL = -1 # start of sequence symbol 
 DATASET_SIZE = 50000
 EPOCHS = 50
-
-
 
 
 def plot_attention(attention, input_word, generated_word, size_=(10,10)):
