@@ -2,7 +2,10 @@
 #%% Pointer networks example
 
 """ 
-Pointer networks example
+Pointer networks example:
+
+This example shows how to use pointer networks to sort numbers.
+
 """
 __author__ = "AL-Tam Faroq"
 __copyright__ = "Copyright 2020, UALG"
@@ -42,53 +45,34 @@ random_seed = torch.manual_seed(45)
 IN_FEATURES = 1 # depends on the demnationality of the input
 HIDDEN_SIZE = 256
 BATCH_SIZE = 64
-RANGE = [0, 100]
+RANGE = [0, 1000] # range of generated numbers in a sequence
 SOS_SYMBOL = -1 # start of sequence symbol 
 DATASET_SIZE = 50000
 EPOCHS = 50
 
 
-VALIDATION_RATIO = .2
 
 
-def plot_attention(attention, input_word, generated_word, size_=(10,12)):
+def plot_attention(attention, input_word, generated_word, size_=(10,10)):
     print('\nAttention matrix')
     # plot last attention
     plt.matshow(attention)
-    plt.xlabel('generated word')
+    plt.xlabel('generated sequence')
     plt.xticks(range(size_[0]),generated_word)
-    plt.ylabel('input word')
+    plt.ylabel('input sequenece')
     plt.yticks(range(size_[1]),input_word)
     plt.show(block=False)
 
 
 def main():
 
-    ds = SortingDataset(range_=RANGE, SOS_SYMBOL=SOS_SYMBOL, num_instances=DATASET_SIZE)
-    # train-validate spilit
-    ds_len = len(ds)
-    indexes = list(range(ds_len))
-    random.shuffle(indexes) # shuffle them
-    spilit_spot = int(math.floor(VALIDATION_RATIO * ds_len))
+    # dataset generator
+    ds = SortingDataset(range_=RANGE, SOS_SYMBOL=SOS_SYMBOL, num_instances=DATASET_SIZE)    
     
-    train_indexes = indexes[spilit_spot:]
-    validation_indexes = indexes[:spilit_spot]
-
-    # samples 
-    train_sampler = SubsetRandomSampler(train_indexes)
-    validation_sampler = SubsetRandomSampler(validation_indexes)
-
     # loaders
     train_dataloader = DataLoader(ds,
-                            sampler=train_sampler,
                             batch_size=BATCH_SIZE,
                             num_workers=0)
-
-    validation_dataloader = DataLoader(ds,
-                            sampler=validation_sampler,
-                            batch_size=BATCH_SIZE,
-                            num_workers=0)
-    
 
 
     # The Pointer Network model
@@ -128,12 +112,12 @@ def main():
             # can be replaced by a single elegant line, but I do it like this for better readability
             for i in range(sequence_length):
                 loss += loss_function(attentions[:, i, :].to(pointer_network.device), target_seq[:, i])
-            #back propagate
+            #backpropagate
             loss.backward()
             opitmizer.step()
             # loss curve
             losses.append(loss.detach().cpu().item())
-            # uncomment this line to check how store all training tuples
+            # uncomment this line to store all training tuples
             #samples.append((target_seq.detach().cpu().numpy(), pointers.detach().cpu().numpy()))  
         epochs_loss.append(sum(losses) / len(losses))
 
@@ -145,26 +129,12 @@ def main():
     plt.ylabel('Loss')
     plt.show()
 
-
-    ################## Validation #############
-    print('\nValidation ...\n')
+    ################## Testing #############
+    pointer_network.eval() # trun off gradient tracking
+    test_sequence_length = 20
+    print('\n\n\nTesting using  a higher length %d'% test_sequence_length)
     print('\ninput\ttarget\tpointer')
-    pointer_network.eval()
-    for batch, target_sequences in validation_dataloader:
-        if batch.shape[0] < BATCH_SIZE:
-            break # ignore last small batch, can be padded although
-        batch = batch.unsqueeze(2).float() # add another dim for features 
-        attentions, pointers = pointer_network(batch)
-
-        pointers = pointers.detach().cpu().numpy().astype(int)
-        input_sequences = batch.squeeze(2).detach().cpu().numpy().astype(int)
-        for input_seq, target_seq, pointer in zip(input_sequences, target_sequences, pointers):
-            print(input_seq, input_seq[target_seq], input_seq[pointer])
-
-     ################## Testing #############
-    print('\n\n\n Testing of higher length 12')
-    print('\ninput\ttarget\tpointer')
-    ds = SortingDataset(range_=RANGE, lengths=[12], SOS_SYMBOL=SOS_SYMBOL, num_instances=100)
+    ds = SortingDataset(range_=RANGE, lengths=[test_sequence_length], SOS_SYMBOL=SOS_SYMBOL, num_instances=100)
     test_dataloader = DataLoader(ds,
                             batch_size=BATCH_SIZE,
                             num_workers=0)
@@ -179,7 +149,7 @@ def main():
         i = 0
         for input_seq, target_seq, pointer in zip(input_sequences, target_sequences, pointers):
             print(input_seq, input_seq[target_seq], input_seq[pointer])
-            plot_attention(attentions[i].t().detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(12, 12))
+            plot_attention(attentions[i].t().detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(test_sequence_length, test_sequence_length))
             i += 1
 
 
