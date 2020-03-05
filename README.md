@@ -3,8 +3,8 @@
 This work is the minimal pytorch implementation of some sequence to sequence models.
 
 ## Settings:
-# pytorch 1.4.0
-# python 3.7.6
+#### pytorch 1.4.0
+#### python 3.7.6
 
 
 ## 1- Loung seq2seq model.
