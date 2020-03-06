@@ -20,7 +20,7 @@ __email__ = "ftam@ualg.pt"
 __status__ = "Production"
 
 import sys
-sys.path.append(".")
+sys.path.append("..")
 
 # local files
 from seq2seq_with_deep_attention.datasets.SortingDataset import SortingDataset
