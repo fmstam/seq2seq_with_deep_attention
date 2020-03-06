@@ -3,11 +3,7 @@
 This work is the minimal pytorch implementation of some sequence to sequence models.
 
 ## Keywords:
-#### sequence to sequence 
-#### Loung
-#### NLP
-#### optimization
-#### Pointer networks
+sequence to sequence ; Loung; NLP; optimization; Pointer networks
 
 
 ## Settings:
@@ -30,8 +26,8 @@ The current implementation is meant for learninig purposes and might not be effe
  This is simillar to the previouse model but in this case we use the softmax output to point back to the input. Thus making the output and input length consistent and removes the limitation in predefining a fixed output length. For more details see the https://arxiv.org/abs/1506.03134
 
  ### To run:
-  #### see `pointer_net_example.ipynb` for unmasked pointer network 
-  #### see  `masked_pointer_net_example.ipynb` for masked pointer network, notice the radically improved performance!
+  ####### see `pointer_net_example.ipynb` for unmasked pointer network 
+  ####### see  `masked_pointer_net_example.ipynb` for masked pointer network, notice the radically improved performance!
 
 
 
