@@ -46,11 +46,11 @@ import math
 random_seed = torch.manual_seed(45)
 
 # constants
-IN_FEATURES = 1 # depends on the demnationality of the input
+IN_FEATURES = 2 
 HIDDEN_SIZE = 256
 BATCH_SIZE = 64
 RANGE = [0, 100] # range of generated numbers in a sequence
-SOS_SYMBOL = -1 # start of sequence symbol 
+SOS_SYMBOL = 1.0 # start of sequence symbol 
 DATASET_SIZE = 1000
 EPOCHS = 50
 
@@ -73,6 +73,7 @@ def main():
     # dataset generator
     ds = SortingDataset(use_weights= True, range_=RANGE, SOS_SYMBOL=SOS_SYMBOL, num_instances=DATASET_SIZE)    
     
+    
     # loaders
     train_dataloader = DataLoader(ds,
                             batch_size=BATCH_SIZE,
@@ -92,26 +93,30 @@ def main():
     opitmizer = optim.Adam(pointer_network.parameters(), lr=0.00025)
 
     ################## Training #############
+    #torch.autograd.set_detect_anomaly(True)
     print('Training ...')
     pointer_network.train()
     epochs_loss = []
     for _ in range(EPOCHS):
         losses = []
-        for batch, target_seq in train_dataloader:
+        for batch,  target_seq in train_dataloader:
             
-            # handel last batch size problem
-            last_batch_size, sequence_length = batch.shape
-            pointer_network.update_batch_size(last_batch_size)
-
-            # put them in the same device as the model's
+            # put them in the same device as the model
+            batch = batch.float().to(pointer_network.device)
             target_seq = target_seq.to(pointer_network.device)
+
+            # fix dims order to (batch_size, seq_size, features)        
+            batch = batch.permute(0,2,1) 
+
+            # handel last batch size problem
+            last_batch_size, sequence_length,_ = batch.shape
+            pointer_network.update_batch_size(last_batch_size)
 
             # zero grad        
             pointer_network.zero_grad()
             pointer_network.encoder.zero_grad()
             pointer_network.decoder_cell.zero_grad()
-            batch = batch.unsqueeze(2).float() # add another dim for features 
-            
+       
             # apply model
             attentions, pointers = pointer_network(batch)
 
@@ -121,11 +126,14 @@ def main():
             # the one_hot can be moved to the dataset for a better optimization of resources
             for i in range(sequence_length):
                 loss += loss_func(attentions[:, i, :].to(pointer_network.device), nn.functional.one_hot(target_seq[:, i]).float())
+                        
             #backpropagate
             loss.backward()
             opitmizer.step()
+
             # loss curve
             losses.append(loss.detach().cpu().item())
+
             # uncomment this line to store all training tuples
             #samples.append((target_seq.detach().cpu().numpy(), pointers.detach().cpu().numpy()))  
         epochs_loss.append(sum(losses) / len(losses))

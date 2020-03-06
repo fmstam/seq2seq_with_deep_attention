@@ -66,10 +66,7 @@ class EmbeddingLSTM(nn.Module):
                 state = torch.zeros(1, self.batch_size, self.hidden_size)
             state = state.to(self.device)
             hidden_state_and_cell = (state, state)
-
-        # assert hidden_state_and_cell is not None, 'LSTM state should be initialized'
      
-        x = x.to(self.device)
         embd = self.embedding(x) # first step
         encoder_output, hidden_state_and_cell = self.lstm(embd, hidden_state_and_cell)
 

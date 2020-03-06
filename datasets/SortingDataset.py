@@ -49,13 +49,14 @@ class SortingDataset(Dataset):
             j = math.floor(i / self.num_instances)
             arr = np.random.randint(low=self.range[0], high=self.range[1], size=self.lengths[j])
             if use_weights:
-                weights = np.random.rand(self.lengths[j], 1)
+                weights = np.random.rand(self.lengths[j])
             else:
                 weights = np.ones_like(arr)
-            arr = arr * weights    
-            sorted_arr_args = np.argsort(arr)
+            weighed_arr = arr * weights    
+            sorted_arr_args = np.argsort(weighed_arr)
+
             if use_weights:
-                self.ds.append((arr, weights, sorted_arr_args))
+                self.ds.append((np.stack((arr, weights)), sorted_arr_args))
             else:
                 self.ds.append((arr, sorted_arr_args))
 
