@@ -27,6 +27,7 @@ from seq2seq_with_deep_attention.models.MaskedPointerNetwork import MaskedPointe
 # torch
 import torch
 import torch.nn as nn
+import torch.functional as F
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler # to do train-validate spilit
@@ -49,7 +50,7 @@ BATCH_SIZE = 64
 RANGE = [0, 100] # range of generated numbers in a sequence
 SOS_SYMBOL = -1 # start of sequence symbol 
 DATASET_SIZE = 1000
-EPOCHS = 40
+EPOCHS = 50
 
 
 
@@ -78,7 +79,7 @@ def main():
 
     # The Pointer Network model
                      # use PointerNetwork for an unmasked version
-    pointer_network = PointerNetwork(in_features=IN_FEATURES,
+    pointer_network = MaskedPointerNetwork(in_features=IN_FEATURES,
                                  hidden_size=HIDDEN_SIZE,
                                  batch_size=BATCH_SIZE,
                                  sos_symbol=SOS_SYMBOL,
@@ -86,8 +87,12 @@ def main():
 
     
     # loss function and optimizer
-    loss_function = nn.NLLLoss()
-    opitmizer = optim.Adam(pointer_network.parameters(), lr=0.0025)
+    #nllloss_function = nn.NLLLoss()
+    #mseloss_function = nn.MSELoss()
+
+    loss_func = nn.MSELoss()
+
+    opitmizer = optim.Adam(pointer_network.parameters(), lr=0.00025)
 
     ################## Training #############
     print('Training ...')
@@ -117,7 +122,7 @@ def main():
             loss = 0
             # can be replaced by a single elegant line, but I do it like this for better readability
             for i in range(sequence_length):
-                loss += loss_function(attentions[:, i, :].to(pointer_network.device), target_seq[:, i])
+                loss += loss_func(attentions[:, i, :].to(pointer_network.device), nn.functional.one_hot(target_seq[:, i]).float())
             #backpropagate
             loss.backward()
             opitmizer.step()
