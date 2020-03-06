@@ -2,6 +2,14 @@
 
 This work is the minimal pytorch implementation of some sequence to sequence models.
 
+## Keywords:
+#### sequence to sequence 
+#### Loung
+#### NLP
+#### optimization
+#### Pointer networks
+
+
 ## Settings:
 #### pytorch 1.4.0
 #### python 3.7.6
