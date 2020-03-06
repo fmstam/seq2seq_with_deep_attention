@@ -8,10 +8,11 @@ import seq2seq_with_deep_attention.run_masked_pointer_net as run_masked_pointer_
 random_seed = torch.manual_seed(45)
 
 def main():
-    # uncommnet the model line to test it
+    # uncommnet a line to run an example
     #run_loung.main()
     #run_pointer_net.main()
-    run_masked_pointer_net.main()
+    #run_masked_pointer_net.main()
+    # run pointer_net_multi_features.main()
 
 
 

@@ -77,8 +77,7 @@ def main():
                             num_workers=0)
 
 
-    # The Pointer Network model
-                     # use PointerNetwork for an unmasked version
+    # The Masked Pointer Network model
     pointer_network = MaskedPointerNetwork(in_features=IN_FEATURES,
                                  hidden_size=HIDDEN_SIZE,
                                  batch_size=BATCH_SIZE,
@@ -87,11 +86,7 @@ def main():
 
     
     # loss function and optimizer
-    #nllloss_function = nn.NLLLoss()
-    #mseloss_function = nn.MSELoss()
-
     loss_func = nn.MSELoss()
-
     opitmizer = optim.Adam(pointer_network.parameters(), lr=0.00025)
 
     ################## Training #############
@@ -121,6 +116,7 @@ def main():
             # loss calculation
             loss = 0
             # can be replaced by a single elegant line, but I do it like this for better readability
+            # the one_hot can be moved to the dataset for a better optimization of resources
             for i in range(sequence_length):
                 loss += loss_func(attentions[:, i, :].to(pointer_network.device), nn.functional.one_hot(target_seq[:, i]).float())
             #backpropagate
@@ -171,4 +167,3 @@ if __name__ is '__main__':
 # %%
 
 
-# %%

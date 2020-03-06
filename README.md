@@ -28,6 +28,5 @@ The current implementation is meant for learninig purposes and might not be effe
  ### To run:
   - see `pointer_net_example.ipynb` for unmasked pointer network 
   - see  `masked_pointer_net_example.ipynb` for masked pointer network, notice the radically improved performance!
-
-
+  - see  `pointer_net_multi_features_example.ipynb` for masked pointer network used for input vector with higher dimensions.
 

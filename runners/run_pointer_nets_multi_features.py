@@ -5,7 +5,9 @@
 Pointer networks example:
 
 This example shows how to use pointer networks to sort numbers.
-This example uses multiple features in the input elements to the encoder
+In this case, we use multiple feature to input to the decoder and decoder parts.
+Therefore, each instance in the dataset contains((array, weights), sorted_array).
+For more details, see the SortingDataset class.
 
 """
 __author__ = "AL-Tam Faroq"
@@ -22,11 +24,12 @@ sys.path.append("..")
 
 # local files
 from seq2seq_with_deep_attention.datasets.SortingDataset import SortingDataset
-from seq2seq_with_deep_attention.models.PointerNetwork import PointerNetwork
+from seq2seq_with_deep_attention.models.MaskedPointerNetwork import MaskedPointerNetwork
 
 # torch
 import torch
 import torch.nn as nn
+import torch.functional as F
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler # to do train-validate spilit
@@ -43,16 +46,18 @@ import math
 random_seed = torch.manual_seed(45)
 
 # constants
-IN_FEATURES = 2 # depends on the demnationality of the input
+IN_FEATURES = 1 # depends on the demnationality of the input
 HIDDEN_SIZE = 256
 BATCH_SIZE = 64
-RANGE = [0, 1000] # range of generated numbers in a sequence
+RANGE = [0, 100] # range of generated numbers in a sequence
 SOS_SYMBOL = -1 # start of sequence symbol 
-DATASET_SIZE = 50000
+DATASET_SIZE = 1000
 EPOCHS = 50
 
 
 def plot_attention(attention, input_word, generated_word, size_=(10,10)):
+    """ Plot the attention matrix between the input and output sequences.
+    """
     print('\nAttention matrix')
     # plot last attention
     plt.matshow(attention)
@@ -66,7 +71,7 @@ def plot_attention(attention, input_word, generated_word, size_=(10,10)):
 def main():
 
     # dataset generator
-    ds = SortingDataset(range_=RANGE, SOS_SYMBOL=SOS_SYMBOL, num_instances=DATASET_SIZE)    
+    ds = SortingDataset(use_weights= True, range_=RANGE, SOS_SYMBOL=SOS_SYMBOL, num_instances=DATASET_SIZE)    
     
     # loaders
     train_dataloader = DataLoader(ds,
@@ -74,8 +79,8 @@ def main():
                             num_workers=0)
 
 
-    # The Pointer Network model
-    pointer_network = PointerNetwork(in_features=IN_FEATURES,
+    # The Masked Pointer Network model
+    pointer_network = MaskedPointerNetwork(in_features=IN_FEATURES,
                                  hidden_size=HIDDEN_SIZE,
                                  batch_size=BATCH_SIZE,
                                  sos_symbol=SOS_SYMBOL,
@@ -83,8 +88,8 @@ def main():
 
     
     # loss function and optimizer
-    loss_function = nn.NLLLoss()
-    opitmizer = optim.Adam(pointer_network.parameters(), lr=0.0005)
+    loss_func = nn.MSELoss()
+    opitmizer = optim.Adam(pointer_network.parameters(), lr=0.00025)
 
     ################## Training #############
     print('Training ...')
@@ -93,7 +98,11 @@ def main():
     for _ in range(EPOCHS):
         losses = []
         for batch, target_seq in train_dataloader:
-            _, sequence_length = batch.shape
+            
+            # handel last batch size problem
+            last_batch_size, sequence_length = batch.shape
+            pointer_network.update_batch_size(last_batch_size)
+
             # put them in the same device as the model's
             target_seq = target_seq.to(pointer_network.device)
 
@@ -109,8 +118,9 @@ def main():
             # loss calculation
             loss = 0
             # can be replaced by a single elegant line, but I do it like this for better readability
+            # the one_hot can be moved to the dataset for a better optimization of resources
             for i in range(sequence_length):
-                loss += loss_function(attentions[:, i, :].to(pointer_network.device), target_seq[:, i])
+                loss += loss_func(attentions[:, i, :].to(pointer_network.device), nn.functional.one_hot(target_seq[:, i]).float())
             #backpropagate
             loss.backward()
             opitmizer.step()
@@ -130,16 +140,17 @@ def main():
 
     ################## Testing #############
     pointer_network.eval() # trun off gradient tracking
-    test_sequence_length = 20
+    test_sequence_length = 12
+    test_batches = 1 # one batch for testing
     print('\n\n\nTesting using  a higher length %d'% test_sequence_length)
-    print('\ninput\ttarget\tpointer')
-    ds = SortingDataset(range_=RANGE, lengths=[test_sequence_length], SOS_SYMBOL=SOS_SYMBOL, num_instances=100)
+    
+    ds = SortingDataset(range_=RANGE, lengths=[test_sequence_length], SOS_SYMBOL=SOS_SYMBOL, num_instances=test_batches*last_batch_size)
     test_dataloader = DataLoader(ds,
-                            batch_size=BATCH_SIZE,
+                            batch_size=last_batch_size,
                             num_workers=0)
+    print('\ninput\ttarget\tpointer')
     for batch, target_sequences in test_dataloader:
-        if batch.shape[0] < BATCH_SIZE:
-            break # ingonre last small batch, can be padded although
+
         batch = batch.unsqueeze(2).float() # add another dim for features 
         attentions, pointers = pointer_network(batch)
 
@@ -156,3 +167,5 @@ if __name__ is '__main__':
     main()
 
 # %%
+
+

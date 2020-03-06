@@ -22,7 +22,10 @@ import math
 from torch.utils.data import Dataset, DataLoader
 
 class SortingDataset(Dataset):
-
+    """ Generate a data set of number sorting instance.
+        Each instance is a tuple of (array, sorted_array). The sorted array contains the indexes of the sorted 
+        numbers. That is, we use the argsort function.
+    """
     def __init__(self,
                 use_weights=False,  # if True then number are weighed. That is each element in the sequence is a tuple:
                                    # (weight, number) and when sorting them we use weight*number to rate each element.

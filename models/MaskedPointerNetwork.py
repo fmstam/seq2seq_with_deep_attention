@@ -109,7 +109,7 @@ class MaskedPointerNetwork(nn.Module):
         #decoder_cell_input = torch.zeros((self.batch_size, 1)) # one is for the feature not the step
         decoder_cell_input = torch.ones((self.batch_size, 1)) * self.sos_symbol # one is for the feature not the step
 
-        mask = torch.ones((self.batch_size, input_seq_length)).to(self.device) # to avoid pointing twice to the same element
+        masked = torch.zeros((self.batch_size, input_seq_length)).to(self.device) # to avoid pointing twice to the same element
 
         for i in range(input_seq_length):
             # 1 - calculate decoder hidden and cell states 
@@ -120,21 +120,16 @@ class MaskedPointerNetwork(nn.Module):
             # 2 - used decoder_cell_output and encoder_output to calculate the attention:
             # u^i_j = v^\top tanh(W_1 e_j + W_2 d_i), \forall j \in (1, \cdots, n)
             u = self.v(torch.tanh(self.W_1(encoder_output) + self.W_2(decoder_cell_output).unsqueeze(1))).squeeze(2)
-            # if u.max().item() > 100:
-            #     print(u.min().item())
-            #     print(u.max().item())
-            # # a^i_j = softmax(u^i_j)
-            u -= (1 - mask) * 1e6
-            attentions[:, i, :] = F.softmax(u, dim=1) # we use the log for two reasons:
-                                                 # 1- avoid doing hot_one encoding
-                                                 # 2- mathematical stability
+            # mask by a large negative number so the softmax will be close to zero
+            u -= masked * 1e6 
+            attentions[:, i, :] = F.softmax(u, dim=1)
             _, max_pointer = attentions[:, i, :].max(dim=1)
-            #_, max_pointer = masked_max(attentions[:, i, :].to(self.device), mask, dim=1)
             
+            # store the pointer
             pointers[:, i] = max_pointer
             
             # update mask
-            mask[range(self.batch_size), max_pointer] = 0
+            masked[range(self.batch_size), max_pointer] = 1
 
             # create a new input
             # can be refactored to a single line but this is more readable
