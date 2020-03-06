@@ -51,7 +51,7 @@ HIDDEN_SIZE = 256
 BATCH_SIZE = 64
 RANGE = [0, 100] # range of generated numbers in a sequence
 SOS_SYMBOL = 1.0 # start of sequence symbol 
-DATASET_SIZE = 1000
+DATASET_SIZE = 2000
 EPOCHS = 50
 
 
@@ -162,9 +162,9 @@ def main():
     test_dataloader = DataLoader(ds,
                             batch_size=last_batch_size,
                             num_workers=0)
-    print('\ninput\ttarget\tpointer')
+    print('\ninput\tweights\ttarget\tpointer')
     for batch, target_sequences in test_dataloader:
-        
+
         # fix dims order to (batch_size, seq_size, features)        
         batch = batch.permute(0,2,1) 
         batch = batch.float().to(pointer_network.device) # add another dim for features 
@@ -175,7 +175,7 @@ def main():
         i = 0
         for input_seq, target_seq, pointer in zip(input_sequences, target_sequences, pointers):
             print(input_seq[:,0], input_seq[:,1], input_seq[target_seq,0], input_seq[pointer,0])
-            plot_attention(attentions[i].t().detach().cpu().numpy(), input_seq[:,0], input_seq[pointer, 0], size_=(test_sequence_length, test_sequence_length))
+            plot_attention(attentions[i].t().detach().cpu().numpy(), input_seq[:,0].astype(int), input_seq[pointer, 0].astype(int), size_=(test_sequence_length, test_sequence_length))
             i += 1
 
 
