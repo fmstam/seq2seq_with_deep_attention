@@ -1,5 +1,9 @@
-# main run file
+
+#%%  main runner file
 import torch
+
+import sys
+sys.path.append(".")
 
 import seq2seq_with_deep_attention.runners.run_loung as run_loung
 import seq2seq_with_deep_attention.runners.run_pointer_net as run_pointer_net
@@ -19,3 +23,5 @@ def main():
 
 if __name__ is '__main__':
     main()
+
+# %%

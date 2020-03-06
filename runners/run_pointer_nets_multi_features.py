@@ -20,7 +20,7 @@ __email__ = "ftam@ualg.pt"
 __status__ = "Production"
 
 import sys
-sys.path.append("..")
+sys.path.append(".")
 
 # local files
 from seq2seq_with_deep_attention.datasets.SortingDataset import SortingDataset
@@ -125,7 +125,8 @@ def main():
             # can be replaced by a single elegant line, but I do it like this for better readability
             # the one_hot can be moved to the dataset for a better optimization of resources
             for i in range(sequence_length):
-                loss += loss_func(attentions[:, i, :].to(pointer_network.device), nn.functional.one_hot(target_seq[:, i]).float())
+                loss += loss_func(attentions[:, i, :].to(pointer_network.device), \
+                         nn.functional.one_hot(target_seq[:, i], num_classes=ds.lengths[0]).float())
                         
             #backpropagate
             loss.backward()
@@ -152,22 +153,29 @@ def main():
     test_batches = 1 # one batch for testing
     print('\n\n\nTesting using  a higher length %d'% test_sequence_length)
     
-    ds = SortingDataset(range_=RANGE, lengths=[test_sequence_length], SOS_SYMBOL=SOS_SYMBOL, num_instances=test_batches*last_batch_size)
+    ds = SortingDataset(use_weights=True, 
+                        range_=RANGE,
+                        lengths=[test_sequence_length], 
+                        SOS_SYMBOL=SOS_SYMBOL, 
+                        num_instances=test_batches*last_batch_size)
+
     test_dataloader = DataLoader(ds,
                             batch_size=last_batch_size,
                             num_workers=0)
     print('\ninput\ttarget\tpointer')
     for batch, target_sequences in test_dataloader:
-
-        batch = batch.unsqueeze(2).float() # add another dim for features 
+        
+        # fix dims order to (batch_size, seq_size, features)        
+        batch = batch.permute(0,2,1) 
+        batch = batch.float().to(pointer_network.device) # add another dim for features 
         attentions, pointers = pointer_network(batch)
 
         pointers = pointers.detach().cpu().numpy().astype(int)
-        input_sequences = batch.squeeze(2).detach().cpu().numpy().astype(int)
+        input_sequences = batch.squeeze(2).detach().cpu().numpy()
         i = 0
         for input_seq, target_seq, pointer in zip(input_sequences, target_sequences, pointers):
-            print(input_seq, input_seq[target_seq], input_seq[pointer])
-            plot_attention(attentions[i].t().detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(test_sequence_length, test_sequence_length))
+            print(input_seq[:,0], input_seq[:,1], input_seq[target_seq,0], input_seq[pointer,0])
+            plot_attention(attentions[i].t().detach().cpu().numpy(), input_seq[:,0], input_seq[pointer, 0], size_=(test_sequence_length, test_sequence_length))
             i += 1
 
 
