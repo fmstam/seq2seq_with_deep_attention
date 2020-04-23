@@ -2,11 +2,11 @@
 #%% Pointer networks example
 
 """ 
-Pointer networks example:
+Pointer network example:
 
 This example shows how to use pointer networks to sort numbers.
-In this case, we use multiple feature to input to the decoder and decoder parts.
-Therefore, each instance in the dataset contains((array, weights), sorted_array).
+In this case, we use multiple features as input to the decoder and decoder parts.
+Therefore, each instance in the dataset is a tuple ((array, weights), sorted_array).
 For more details, see the SortingDataset class.
 
 """
@@ -126,8 +126,7 @@ def main():
             # the one_hot can be moved to the dataset for a better optimization of resources
             for i in range(sequence_length):
                 loss += loss_func(attentions[:, i, :].to(pointer_network.device), \
-                         nn.functional.one_hot(target_seq[:, i], num_classes=ds.lengths[0]).float())
-                        
+                         nn.functional.one_hot(target_seq[:, i], num_classes=ds.lengths[0]).float()) 
             #backpropagate
             loss.backward()
             opitmizer.step()

@@ -15,9 +15,9 @@ random_seed = torch.manual_seed(45)
 def main():
     # uncommnet a line to run an example
     #run_loung.main()
-    #run_pointer_net.main()
+    run_pointer_net.main()
     #run_masked_pointer_net.main()
-    run_pointer_nets_multi_features.main()
+    #run_pointer_nets_multi_features.main()
 
 
 

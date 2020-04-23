@@ -49,7 +49,7 @@ BATCH_SIZE = 64
 RANGE = [0, 100] # range of generated numbers in a sequence
 SOS_SYMBOL = -1 # start of sequence symbol 
 DATASET_SIZE = 1000
-EPOCHS = 40
+EPOCHS = 200
 
 
 
@@ -58,10 +58,10 @@ def plot_attention(attention, input_word, generated_word, size_=(10,10)):
     print('\nAttention matrix')
     # plot last attention
     plt.matshow(attention)
-    plt.xlabel('generated sequence')
-    plt.xticks(range(size_[0]),generated_word)
-    plt.ylabel('input sequenece')
-    plt.yticks(range(size_[1]),input_word)
+    plt.ylabel('Generated sequence')
+    plt.yticks(range(size_[0]), range(len(generated_word)))
+    plt.xlabel('Input sequenece')
+    plt.xticks(range(size_[1]),input_word)
     plt.show(block=False)
 
 
@@ -97,6 +97,10 @@ def main():
         losses = []
         for batch, target_seq in train_dataloader:
             
+            # place them in the same device
+            batch = batch.to(pointer_network.device)
+            target_seq = target_seq.to(pointer_network.device)
+
             # handel last batch size problem
             last_batch_size, sequence_length = batch.shape
             pointer_network.update_batch_size(last_batch_size)
@@ -148,7 +152,7 @@ def main():
     print('\ninput\ttarget\tpointer')
     for batch, target_sequences in test_dataloader:
 
-        batch = batch.unsqueeze(2).float() # add another dim for features 
+        batch = batch.unsqueeze(2).float().to(pointer_network.device) # add another dim for features 
         attentions, pointers = pointer_network(batch)
 
         pointers = pointers.detach().cpu().numpy().astype(int)
@@ -156,7 +160,7 @@ def main():
         i = 0
         for input_seq, target_seq, pointer in zip(input_sequences, target_sequences, pointers):
             print(input_seq, input_seq[target_seq], input_seq[pointer])
-            plot_attention(attentions[i].t().detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(test_sequence_length, test_sequence_length))
+            plot_attention(attentions[i].detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(test_sequence_length, test_sequence_length))
             i += 1
 
 

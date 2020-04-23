@@ -104,7 +104,7 @@ class PointerNetwork(nn.Module):
         # initialize the first input to the decoder_cell, zeros, random, or using the sos_symbol
         #decoder_cell_input = torch.rand((self.batch_size, 1)) # one is for the feature not the step
         #decoder_cell_input = torch.zeros((self.batch_size, 1)) # one is for the feature not the step
-        decoder_cell_input = torch.ones((self.batch_size, 1)) * self.sos_symbol # one is for the feature not the step
+        decoder_cell_input = (torch.ones((self.batch_size, 1)) * self.sos_symbol).to(self.device) # one is for the feature not the step
 
 
         for i in range(input_seq_length):
@@ -128,8 +128,10 @@ class PointerNetwork(nn.Module):
 
             # create a new input
             # can be refactored to a single line but this is more readable
+            decoder_cell_input = decoder_cell_input.clone()
             for j in range(self.batch_size):
                 decoder_cell_input[j, :] = input_seq[j, max_pointer[j], :]
+
 
         return attentions, pointers
 
