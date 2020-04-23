@@ -17,7 +17,7 @@ __email__ = "ftam@ualg.pt"
 __status__ = "Production"
 
 import sys
-sys.path.append("..")
+sys.path.append("../..")
 
 # local files
 from seq2seq_with_deep_attention.datasets.SortingDataset import SortingDataset
@@ -49,7 +49,7 @@ BATCH_SIZE = 64
 RANGE = [0, 100] # range of generated numbers in a sequence
 SOS_SYMBOL = -1 # start of sequence symbol 
 DATASET_SIZE = 1000
-EPOCHS = 200
+EPOCHS = 50
 
 
 
@@ -157,7 +157,7 @@ def main():
                             num_workers=0)
     print('\ninput\ttarget\tpointer')
     for batch, target_sequences in test_dataloader:
-
+        batch[0] = torch.tensor([37, 3, 31, 5, 11, 7, 2, 29, 17, 15])
         batch = batch.unsqueeze(2).float().to(pointer_network.device) # add another dim for features 
         attentions, pointers = pointer_network(batch)
 
@@ -169,6 +169,7 @@ def main():
             plot_attention(attentions[i].detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(test_sequence_length, test_sequence_length))
             plot_attention(attentions[i].t().detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(test_sequence_length, test_sequence_length), flipped=True)
             print(attentions[i].detach().cpu().numpy())
+            break
 
             i += 1
 
