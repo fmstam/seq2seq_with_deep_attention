@@ -49,7 +49,7 @@ BATCH_SIZE = 64
 RANGE = [0, 100] # range of generated numbers in a sequence
 SOS_SYMBOL = -1 # start of sequence symbol 
 DATASET_SIZE = 1000
-EPOCHS = 50
+EPOCHS = 40
 
 
 
@@ -99,6 +99,8 @@ def main():
     print('Training ...')
     pointer_network.train()
     epochs_loss = []
+    test_after = 100
+    iteration = 0
     for _ in range(EPOCHS):
         losses = []
         for batch, target_seq in train_dataloader:
@@ -135,6 +137,12 @@ def main():
             losses.append(loss.detach().cpu().item())
             # uncomment this line to store all training tuples
             #samples.append((target_seq.detach().cpu().numpy(), pointers.detach().cpu().numpy()))  
+
+            # evalute
+            if iteration % test_after == 0:
+                test(pointer_network, last_batch_size)
+                pointer_network.train()
+            iteration += 1
         epochs_loss.append(sum(losses) / len(losses))
 
     # plot loss
@@ -145,6 +153,7 @@ def main():
     plt.ylabel('Loss')
     plt.show()
 
+def test(pointer_network, last_batch_size):
     ################## Testing #############
     pointer_network.eval() # trun off gradient tracking
     test_sequence_length = 10
@@ -157,7 +166,7 @@ def main():
                             num_workers=0)
     print('\ninput\ttarget\tpointer')
     for batch, target_sequences in test_dataloader:
-        batch[0] = torch.tensor([37, 3, 31, 5, 11, 7, 2, 29, 17, 15])
+        batch[0] = torch.tensor([0, 93, 31, 5, 11, 7, 2, 29, 17, 15])
         batch = batch.unsqueeze(2).float().to(pointer_network.device) # add another dim for features 
         attentions, pointers = pointer_network(batch)
 
@@ -167,8 +176,8 @@ def main():
         for input_seq, target_seq, pointer in zip(input_sequences, target_sequences, pointers):
             print(input_seq, input_seq[target_seq], input_seq[pointer])
             plot_attention(attentions[i].detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(test_sequence_length, test_sequence_length))
-            plot_attention(attentions[i].t().detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(test_sequence_length, test_sequence_length), flipped=True)
-            print(attentions[i].detach().cpu().numpy())
+            #plot_attention(attentions[i].t().detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(test_sequence_length, test_sequence_length), flipped=True)
+            #print(attentions[i].detach().cpu().numpy())
             break
 
             i += 1
