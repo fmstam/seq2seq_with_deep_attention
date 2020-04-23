@@ -54,14 +54,20 @@ EPOCHS = 200
 
 
 
-def plot_attention(attention, input_word, generated_word, size_=(10,10)):
+def plot_attention(attention, input_word, generated_word, size_=(10,10),  flipped=False):
     print('\nAttention matrix')
     # plot last attention
     plt.matshow(attention)
-    plt.ylabel('Generated sequence')
-    plt.yticks(range(size_[0]), range(len(generated_word)))
-    plt.xlabel('Input sequenece')
-    plt.xticks(range(size_[1]),input_word)
+    if flipped:
+        plt.xlabel('Generated sequence')
+        plt.xticks(range(size_[0]), range(len(generated_word)))
+        plt.ylabel('Input sequenece')
+        plt.yticks(range(size_[1]),input_word)
+    else:
+        plt.ylabel('Generated sequence')
+        plt.yticks(range(size_[0]), range(len(generated_word)))
+        plt.xlabel('Input sequenece')
+        plt.xticks(range(size_[1]),input_word)
     plt.show(block=False)
 
 
@@ -141,7 +147,7 @@ def main():
 
     ################## Testing #############
     pointer_network.eval() # trun off gradient tracking
-    test_sequence_length = 12
+    test_sequence_length = 10
     test_batches = 1 # one batch for testing
     print('\n\n\nTesting using  a higher length %d'% test_sequence_length)
     
@@ -161,6 +167,9 @@ def main():
         for input_seq, target_seq, pointer in zip(input_sequences, target_sequences, pointers):
             print(input_seq, input_seq[target_seq], input_seq[pointer])
             plot_attention(attentions[i].detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(test_sequence_length, test_sequence_length))
+            plot_attention(attentions[i].t().detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(test_sequence_length, test_sequence_length), flipped=True)
+            print(attentions[i].detach().cpu().numpy())
+
             i += 1
 
 
