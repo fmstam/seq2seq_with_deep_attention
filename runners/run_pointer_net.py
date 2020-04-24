@@ -48,7 +48,7 @@ HIDDEN_SIZE = 256
 BATCH_SIZE = 64
 RANGE = [0, 100] # range of generated numbers in a sequence
 SOS_SYMBOL = -1 # start of sequence symbol 
-DATASET_SIZE = 1000
+DATASET_SIZE = 2000
 EPOCHS = 40
 
 
@@ -99,7 +99,7 @@ def main():
     print('Training ...')
     pointer_network.train()
     epochs_loss = []
-    test_after = 100
+    test_after = 20
     iteration = 0
     for _ in range(EPOCHS):
         losses = []
