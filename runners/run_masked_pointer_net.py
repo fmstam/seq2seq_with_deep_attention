@@ -101,7 +101,7 @@ def main():
     pointer_network.train()
     epochs_loss = []
     iteration = 0
-    test_after = 10
+    test_after = 5
     for _ in range(EPOCHS):
         losses = []
         for batch, target_seq in train_dataloader:
