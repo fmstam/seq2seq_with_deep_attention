@@ -159,15 +159,15 @@ def test(pointer_network, last_batch_size):
     pointer_network.eval() # trun off gradient tracking
     test_sequence_length = 10
     test_batches = 1 # one batch for testing
-    print('\n\n\nTesting using  a higher length %d'% test_sequence_length)
+    #print('\n\n\nTesting using  a higher length %d'% test_sequence_length)
     
     ds = SortingDataset(range_=RANGE, lengths=[test_sequence_length], SOS_SYMBOL=SOS_SYMBOL, num_instances=test_batches*last_batch_size)
     test_dataloader = DataLoader(ds,
                             batch_size=last_batch_size,
                             num_workers=0)
-    print('\ninput\ttarget\tpointer')
+    #print('\ninput\ttarget\tpointer')
     for batch, target_sequences in test_dataloader:
-        batch[0] = torch.tensor([1, 93, 31, 5, 11, 7, 2, 29, 17, 15])
+        batch[0] = torch.tensor([3, 93, 31, 5, 17, 7, 1, 29, 17, 15])
         batch = batch.unsqueeze(2).float().to(pointer_network.device) # add another dim for features 
         attentions, pointers = pointer_network(batch)
 
@@ -175,7 +175,7 @@ def test(pointer_network, last_batch_size):
         input_sequences = batch.squeeze(2).detach().cpu().numpy().astype(int)
         i = 0
         for input_seq, target_seq, pointer in zip(input_sequences, target_sequences, pointers):
-            print(input_seq, input_seq[target_seq], input_seq[pointer])
+            print(input_seq, input_seq[pointer])
             plot_attention(attentions[i].detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(test_sequence_length, test_sequence_length))
             #plot_attention(attentions[i].t().detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(test_sequence_length, test_sequence_length), flipped=True)
             #print(attentions[i].detach().cpu().numpy())
