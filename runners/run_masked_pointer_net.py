@@ -17,7 +17,7 @@ __email__ = "ftam@ualg.pt"
 __status__ = "Production"
 
 import sys
-sys.path.append("..")
+sys.path.append("../..")
 
 # local files
 from seq2seq_with_deep_attention.datasets.SortingDataset import SortingDataset
@@ -55,15 +55,22 @@ EPOCHS = 50
 
 
 
-def plot_attention(attention, input_word, generated_word, size_=(10,10)):
+def plot_attention(attention, input_word, generated_word, size_=(10,10),  flipped=False):
     print('\nAttention matrix')
     # plot last attention
     plt.matshow(attention)
-    plt.xlabel('generated sequence')
-    plt.xticks(range(size_[0]),generated_word)
-    plt.ylabel('input sequenece')
-    plt.yticks(range(size_[1]),input_word)
+    if flipped:
+        plt.xlabel('Generated sequence')
+        plt.xticks(range(size_[0]), range(len(generated_word)))
+        plt.ylabel('Input sequenece')
+        plt.yticks(range(size_[1]),input_word)
+    else:
+        plt.ylabel('Generated sequence')
+        plt.yticks(range(size_[0]), range(len(generated_word)))
+        plt.xlabel('Input sequenece')
+        plt.xticks(range(size_[1]),input_word)
     plt.show(block=False)
+
 
 
 def main():
@@ -93,16 +100,20 @@ def main():
     print('Training ...')
     pointer_network.train()
     epochs_loss = []
+    iteration = 0
+    test_after = 10
     for _ in range(EPOCHS):
         losses = []
         for batch, target_seq in train_dataloader:
             
-            # handel last batch size problem
+            # place them in the same device
+            batch = batch.to(pointer_network.device)
+            target_seq = target_seq.to(pointer_network.device)
+
+            # handel last batch size problem            
             last_batch_size, sequence_length = batch.shape
             pointer_network.update_batch_size(last_batch_size)
 
-            # put them in the same device as the model's
-            target_seq = target_seq.to(pointer_network.device)
 
             # zero grad        
             pointer_network.zero_grad()
@@ -126,6 +137,11 @@ def main():
             losses.append(loss.detach().cpu().item())
             # uncomment this line to store all training tuples
             #samples.append((target_seq.detach().cpu().numpy(), pointers.detach().cpu().numpy()))  
+            if iteration % test_after == 0:
+                test(pointer_network, last_batch_size)
+                pointer_network.train()
+            iteration += 1
+
         epochs_loss.append(sum(losses) / len(losses))
 
     # plot loss
@@ -137,8 +153,11 @@ def main():
     plt.show()
 
     ################## Testing #############
+
+def test(pointer_network, last_batch_size):
+    ################## Testing #############
     pointer_network.eval() # trun off gradient tracking
-    test_sequence_length = 12
+    test_sequence_length = 10
     test_batches = 1 # one batch for testing
     print('\n\n\nTesting using  a higher length %d'% test_sequence_length)
     
@@ -148,8 +167,8 @@ def main():
                             num_workers=0)
     print('\ninput\ttarget\tpointer')
     for batch, target_sequences in test_dataloader:
-
-        batch = batch.unsqueeze(2).float() # add another dim for features 
+        batch[0] = torch.tensor([1, 93, 31, 5, 11, 7, 2, 29, 17, 15])
+        batch = batch.unsqueeze(2).float().to(pointer_network.device) # add another dim for features 
         attentions, pointers = pointer_network(batch)
 
         pointers = pointers.detach().cpu().numpy().astype(int)
@@ -157,8 +176,13 @@ def main():
         i = 0
         for input_seq, target_seq, pointer in zip(input_sequences, target_sequences, pointers):
             print(input_seq, input_seq[target_seq], input_seq[pointer])
-            plot_attention(attentions[i].t().detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(test_sequence_length, test_sequence_length))
+            plot_attention(attentions[i].detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(test_sequence_length, test_sequence_length))
+            #plot_attention(attentions[i].t().detach().cpu().numpy(), input_seq, input_seq[pointer], size_=(test_sequence_length, test_sequence_length), flipped=True)
+            #print(attentions[i].detach().cpu().numpy())
+            break
+
             i += 1
+
 
 
 if __name__ is '__main__':
