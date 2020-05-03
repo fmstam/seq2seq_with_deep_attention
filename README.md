@@ -1,6 +1,8 @@
-# Sequence to sequence with attention (seq2seq-with-deep-attention)
+# Sequence to sequence with attention 
 
-This work is the minimal pytorch implementation of some sequence to sequence models.
+This work is the minimal pytorch implementation of some sequence to sequence models. Here I am describing:
+* Loung seq2seq model: used in NLP sequence to sequence translation
+* Pointer networks: an important piece in many combintorial neural networks.
 
 ## Keywords:
 sequence to sequence ; Loung; NLP; optimization; Pointer networks
@@ -18,12 +20,8 @@ The current implementation is meant for learninig purposes and might not be effe
 ### To run:
   see `Loung_seq2seq_example.ipynb`
 
-### For TensorFlow impelementation and more useful links:
-  please check: https://github.com/AndreMaz/deep-attention
-
-
 ## 2- Pointer nets.
- This is simillar to the previouse model but in this case we use the softmax output to point back to the input. Thus making the output and input length consistent and removes the limitation in predefining a fixed output length. For more details see the https://arxiv.org/abs/1506.03134
+ This is simillar to the previouse model but in this case we use the softmax output to point back to the input. Thus making the output and input length consistent and removes the limitation in predefining a fixed output length. 
 
 ### Sorting numbers using pointer nets
  I will use number sorting example to demonstrate how pointer network works.
@@ -58,11 +56,19 @@ Please note that, since there are two 17s in the input, we can point to any one 
 So far we have seen an estimation of the machine is doing, but is that we pointer networks actually does. To know the answer, let us construct another sketch of how did we as human do it:
 
 1. read an item from the sequence. 
-2. remeber it, why? Because we actually look for the smallest number. Therefore we need to remeber all number we have visisted
+2. remeber it , why? Because we actually look for the smallest number. Therefore we need to remeber all number we have visisted
 3. if the current item is the smallest number, then draw arrow to it.
 4. remeber it, why? Because we will use it to find the second smallest number.
 
-The above steps shows how we selected the first arrow in the first figure.
+The above steps shows how we selected the first arrow in the <b>Figure 2</b>. 
+
+We need to remeber both the input and the generated sequence so far. Therefore, we can the following components:
+<p align="center">
+  <img src="images/ptr_machine_4.png" width="400" height="240">
+  <br><b>Figure 4</b>
+</p>
+
+The main component is <b>select</b> 
 
 
 
@@ -71,3 +77,7 @@ The above steps shows how we selected the first arrow in the first figure.
   - see  `masked_pointer_net_example.ipynb` for masked pointer network, notice the radically improved performance!
   - see  `pointer_net_multi_features_example.ipynb` for masked pointer network used for input vector with higher dimensions.
 
+# Links:
+- [1] Loung model paper: 
+- [2] Pointer network paper: https://arxiv.org/abs/1506.03134
+- [3] TensorFlow 2.0 Impelementation : https://github.com/AndreMaz/deep-attention
