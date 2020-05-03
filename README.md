@@ -60,15 +60,15 @@ So far we have seen an estimation of the machine is doing, but is that we pointe
 3. if the current item is the smallest number, then draw arrow to it.
 4. remeber it, why? Because we will use it to find the second smallest number.
 
-The above steps shows how we selected the first arrow in the <b>Figure 2</b>. 
-
-We need to remeber both the input and the generated sequence so far. Therefore, we can the following components:
+The above steps shows how we selected the first arrow in the <b>Figure 2</b>. We need to remeber both the input and the generated sequence so far. Therefore, we can the sketch the following components:
 <p align="center">
   <img src="images/ptr_machine_4.png" width="500" height="300">
   <br><b>Figure 4</b>
 </p>
 
-The main component is <b>select</b> 
+The main component is <b>select</b>, where it both uses the memory from the input side, and the memory from the output side to point to the next item. The <b>remeber</b> component might have different preprocessing steps before it can store the data it receives.
+
+Let us combine the components in the input side: <b>read</b>, <b>remeber</b>, and <b>memory</b> and call it <i><b>Encoder</b></i>. Like wise let us combine the components in the output side: <b>select</b>, <b>remeber</b>, and <b>memory</b> and call it decoder. Therefore, the pointer network is a neural network architecture that encode  
 
 
 
