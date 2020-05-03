@@ -4,6 +4,9 @@ This work is the minimal pytorch implementation of some sequence to sequence mod
 * Loung seq2seq model: used in NLP sequence to sequence translation
 * Pointer networks: an important piece in many combintorial neural networks.
 
+
+It is written in a none-technincal way to explain the intution behined these models. However, the code follows the papers that describes the models. A more technical describtion will be published soon.
+
 ## Keywords:
 sequence to sequence ; Loung; NLP; optimization; Pointer networks
 
@@ -68,10 +71,9 @@ The above steps shows how we selected the first arrow in the <b>Figure 2</b>. We
 
 The main component is <b>select</b>, where it both uses the memory from the input side, and the memory from the output side to point to the next item. The <b>remeber</b> component might have different preprocessing steps before it can store the data it receives.
 
-Let us combine the components in the input side: <b>read</b>, <b>remeber</b>, and <b>memory</b> and call it <i><b>Encoder</b></i>. Like wise let us combine the components in the output side: <b>select</b>, <b>remeber</b>, and <b>memory</b> and call it decoder. Therefore, the pointer network is a neural network architecture that encode  
+Let us combine the components in the input side: <b>read</b>, <b>remeber</b>, and <b>memory</b> and call it <i><b>Encoder</b></i>. Like wise let us combine the components in the output side: <b>select</b>, <b>remeber</b>, and <b>memory</b> and call it decoder. Therefore, the pointer network is a neural network architecture that encode  the input and convert it into a latent memory and use a decoder step to generate a pointer to the input. 
 
-
-
+However, the representation in <b>Figure 2</b> is what we actually tries to teach the pointer network. When trained it starts by making random guess and improves with time until it obtain clear decisions. 
  ### To run:
   - see `pointer_net_example.ipynb` for unmasked pointer network 
   - see  `masked_pointer_net_example.ipynb` for masked pointer network, notice the radically improved performance!
