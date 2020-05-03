@@ -31,19 +31,15 @@ The current implementation is meant for learninig purposes and might not be effe
  Let us assume a pointer net is a blackbox machine, where we feed it with an array (sequence) of unsorted numbers. The machine sorts the input array. We are sure there is not any sorting algorithm (bubbles) inside the machine. How does it do it?
 
  <p align="center">
-  <b> Figure 1 </b>
-  <br>
-  <br>
   <img src="images/ptr_machine_1.png" width="324" height="324" alt="Figure 1">
+  <br><b> Figure 1 </b>
 </p>
   
  Now assume we can obtain an estimation of what the machine actually does:
 
 <p align="center">
-  <b> Figure 2 </b>
-  <br>
-  <br>
   <img src="images/ptr_machine_2.png" width="324" height="324">
+  <br><b> Figure 2 </b>
 </p>
 
 Each one of these arrows <b>points</b> to an item in the input. For each input the machine will generate a sequence of these arrows (<b>pointers</b>). Therefore, the mahine must learn a mechanisim that generates these arrows.
@@ -51,10 +47,8 @@ Each one of these arrows <b>points</b> to an item in the input. For each input t
 Let create a better representation that in <b>Figure 1</b> when using a hot-one encoding matrix. Where each row tells us which input (x axis) to point to in the current step (y axis).
 
 <p align="center">
-  <b> Figure 3 </b>
-  <br>
-  <br>
   <img src="images/ptr_machine_3.png" width="650" height="240">
+  <br><b>Figure 3</b>
 </p>
 
 Where : yellow squares = 1, green = 0.5, blue =0.
