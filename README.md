@@ -31,7 +31,7 @@ The current implementation is meant for learninig purposes and might not be effe
  Let us assume a pointer net is a blackbox machine, where we feed it with an array (sequence) of unsorted numbers. The machine sorts the array. We are sure there is not any sorting algorithm inside the machine. How does it do it?
 
 
-![png](images/ptr_machine_1.png)
+![png](images/ptr_machine_1.png=100x20)
   
  ### To run:
   - see `pointer_net_example.ipynb` for unmasked pointer network 
