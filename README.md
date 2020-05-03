@@ -81,9 +81,11 @@ However, the representation in <b>Figure 2</b> is what we actually tries to teac
 A training until convergence of pointer network is shown in <b>Figure 5</b>. This file is generated from `masked_pointer_net_example.ipynb`.
 
 <p align="center">
-  <img src="images/animated.gif" width="500" height="300">
-  <br><b>Figure 4</b>
+  <img src="images/animated.gif">
+  <br><b>Figure 5</b>
 </p>
+
+
 
 
 
