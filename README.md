@@ -1,11 +1,11 @@
-# Sequence to sequence with attention 
+# Sequence to sequence (seq2seq) with attention 
 
-This work is the minimal pytorch implementation of some sequence to sequence models. Here I am describing:
+This work is the minimal pytorch implementation of some sequence to sequence (seq2seq) models. Here I am describing:
 * Loung seq2seq model: used in NLP sequence to sequence translation
 * Pointer networks: an important piece in many combintorial neural networks.
 
 
-It is written in a none-technincal way to explain the intution behined these models. However, the code follows the papers that describes the models. A more technical describtion will be published soon.
+It is written in a none-technincal way to explain the intution behined these models. However, the code follows the papers that describe the models. A more technical describtion will be published soon.
 
 ## Keywords:
 sequence to sequence ; Loung; NLP; optimization; Pointer networks
@@ -54,27 +54,40 @@ Let create a better representation that in <b>Figure 1</b> when using a hot-one 
 
 Where : yellow squares = 1, green = 0.5, blue =0.
 
-Please note that, since there are two 17s in the input, we can point to any one of them with the same probability.
+Please note that, since there are two <b>17</b>s in the input, we can point to any one of them with the same probability.
 
-So far we have seen an estimation of the machine is doing, but is that we pointer networks actually does. To know the answer, let us construct another sketch of how did we as human do it:
-
+So far we have seen an estimation of what the machine is doing, but is that we pointer networks actually does. To know the answer, let us construct another sketch of how would human do it:
+- Repeat these steps:
 1. read an item from the sequence. 
 2. remeber it , why? Because we actually look for the smallest number. Therefore we need to remeber all number we have visisted
-3. if the current item is the smallest number, then draw arrow to it.
-4. remeber it, why? Because we will use it to find the second smallest number.
+- After we have read and remembered all items from the input, we can start generating the arrows in <b>Figure 2</b>. Therefore we repeat the following steps until we generate all arrows:
+1. pick the smallest number, then draw arrow to it.
+2. remeber it, why? Because we will use it to find the second smallest number.
+ 
+> We need to remeber both the input and the generated sequence so far. We actually use both memories to generate the next arrows. That is (memory(input), memory(output sofar)) -> next arrow 
 
-The above steps shows how we selected the first arrow in the <b>Figure 2</b>. We need to remeber both the input and the generated sequence so far. Therefore, we can the sketch the following components:
+Therefore, we can the sketch the following components from the above steps:
+
 <p align="center">
   <img src="images/ptr_machine_4.png" width="500" height="300">
   <br><b>Figure 4</b>
 </p>
+The main component is <b>select</b>, where it uses both the memory from the input side, and the memory from the output side to generate the next arrow. The <b>remeber</b> component might have different preprocessing steps before it can store the data it receives.
 
-The main component is <b>select</b>, where it both uses the memory from the input side, and the memory from the output side to point to the next item. The <b>remeber</b> component might have different preprocessing steps before it can store the data it receives.
+Let us combine the components in the input side: <b>read</b>, <b>remeber</b>, and <b>memory</b> and call it <i><b>Encoder</b></i>. Likewise, let us combine the components in the output side: <b>select</b>, <b>remeber</b>, and <b>memory</b> and call it decoder. Therefore, the pointer network is a neural network architecture that encodes the input and converts it into a latent memory and use a decoder step to generate a pointer to the input. 
 
-Let us combine the components in the input side: <b>read</b>, <b>remeber</b>, and <b>memory</b> and call it <i><b>Encoder</b></i>. Like wise let us combine the components in the output side: <b>select</b>, <b>remeber</b>, and <b>memory</b> and call it decoder. Therefore, the pointer network is a neural network architecture that encode  the input and convert it into a latent memory and use a decoder step to generate a pointer to the input. 
+However, the representation in <b>Figure 2</b> is what we actually tries to teach the pointer network. When trained it pointer network starts by making random guesses and improves with time until it obtains clear decisions. 
 
-However, the representation in <b>Figure 2</b> is what we actually tries to teach the pointer network. When trained it starts by making random guess and improves with time until it obtain clear decisions. 
- ### To run:
+A training until convergence of pointer network is shown in <b>Figure 5</b>. This file is generated from `masked_pointer_net_example.ipynb`.
+
+<p align="center">
+  <img src="images/animated.gif" width="500" height="300">
+  <br><b>Figure 4</b>
+</p>
+
+
+
+### To test the code try:
   - see `pointer_net_example.ipynb` for unmasked pointer network 
   - see  `masked_pointer_net_example.ipynb` for masked pointer network, notice the radically improved performance!
   - see  `pointer_net_multi_features_example.ipynb` for masked pointer network used for input vector with higher dimensions.
