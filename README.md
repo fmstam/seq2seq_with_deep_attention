@@ -64,7 +64,7 @@ The above steps shows how we selected the first arrow in the <b>Figure 2</b>.
 
 We need to remeber both the input and the generated sequence so far. Therefore, we can the following components:
 <p align="center">
-  <img src="images/ptr_machine_4.png" width="400" height="240">
+  <img src="images/ptr_machine_4.png" width="500" height="300">
   <br><b>Figure 4</b>
 </p>
 
