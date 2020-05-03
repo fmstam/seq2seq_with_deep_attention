@@ -25,10 +25,11 @@ The current implementation is meant for learninig purposes and might not be effe
 ## 2- Pointer nets.
  This is simillar to the previouse model but in this case we use the softmax output to point back to the input. Thus making the output and input length consistent and removes the limitation in predefining a fixed output length. For more details see the https://arxiv.org/abs/1506.03134
 
-### sorting numbers using pointer nets
+### Sorting numbers using pointer nets
  I will use number sorting example to demonstrate how pointer network works.
 
- Let us assume a pointer net is a blackbox machine, where we feed it with an array (sequence) of unsorted numbers. The machine sorts the array. We are sure there is not any sorting algorithm inside the machine. How does it do it?
+ Let us assume a pointer net is a blackbox machine, where we feed it with an array (sequence) of unsorted numbers. The machine sorts the input array. We are sure there is not any sorting algorithm (bubbles) inside the machine. How does it do it?
+
  <p align="center">
   <b> Figure 1 </b>
   <br>
@@ -44,9 +45,10 @@ The current implementation is meant for learninig purposes and might not be effe
   <br>
   <img src="images/ptr_machine_2.png" width="324" height="324">
 </p>
-Each one of these arrows <b>points</b> to an item in the input. For each input the machine will generate a sequence of these arrows (<b>pointers</b>). 
 
-We can actually create a better representation when using a hot-one encoding matrix. Where each row will tell us which input to point to:
+Each one of these arrows <b>points</b> to an item in the input. For each input the machine will generate a sequence of these arrows (<b>pointers</b>). Therefore, the mahine must learn a mechanisim that generates these arrows.
+
+Let create a better representation that in <b>Figure 1</b> when using a hot-one encoding matrix. Where each row tells us which input (x axis) to point to in the current step (y axis).
 
 <p align="center">
   <b> Figure 3 </b>
