@@ -29,10 +29,25 @@ The current implementation is meant for learninig purposes and might not be effe
  I will use number sorting example to demonstrate how pointer network works.
 
  Let us assume a pointer net is a blackbox machine, where we feed it with an array (sequence) of unsorted numbers. The machine sorts the array. We are sure there is not any sorting algorithm inside the machine. How does it do it?
+ <p align="center">
 
-
-![png](images/ptr_machine_1.png)
+  <img src="images/ptr_machine_1.png" width="324" height="324">
+</p>
   
+ Now assume we can obtain a better estimation of what the machine actually does:
+
+<p align="center">
+  <img src="images/ptr_machine_2.png" width="324" height="324">
+</p>
+
+
+We can actually find a better representation as:
+<p align="center">
+  <img src="images/ptr_machine_3.png" width="650" height="240">
+</p>
+
+
+
  ### To run:
   - see `pointer_net_example.ipynb` for unmasked pointer network 
   - see  `masked_pointer_net_example.ipynb` for masked pointer network, notice the radically improved performance!
