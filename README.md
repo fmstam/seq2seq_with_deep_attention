@@ -59,7 +59,7 @@ Please note that, since there are two <b>17</b>s in the input, we can point to a
 So far we have seen an estimation of what the machine is doing, but is that what pointer networks actually does. To know the answer, let us construct another sketch of how would human do it:
 - Repeat these steps:
 1. read an item from the sequence. 
-2. remember it , why? Because we actually look for the smallest number. Therefore we need to remember all number we have visited
+2. remember it , why? Because we actually look for the smallest number. Therefore we need to remember all numbers we have visited
 - After we have read and remembered all items from the input, we can start generating the arrows in <b>Figure 2</b>. Therefore we repeat the following steps until we generate all arrows:
 1. pick the smallest number, then draw arrow to it.
 2. remember it, why? Because we will use it to find the second smallest number.
@@ -74,9 +74,9 @@ Therefore, we can sketch the following components from the above steps:
 </p>
 The main component is <b>select</b>, where it uses both the memory from the input side, and the memory from the output side to generate the next arrow. The <b>remember</b> component might have different preprocessing steps before it can store the data it receives.
 
-Let us combine the components in the input side: <b>read</b>, <b>remember</b>, and <b>memory</b> and call it <i><b>Encoder</b></i>. Likewise, let us combine the components in the output side: <b>select</b>, <b>remeber</b>, and <b>memory</b> and call it decoder. Therefore, the pointer network is a neural network architecture that encodes the input and converts it into a latent memory and use a decoder step to generate a pointer to the input. 
+Let us combine the components in the input side: <b>read</b>, <b>remember</b>, and <b>memory</b> and call it <i><b>Encoder</b></i>. Likewise, let us combine the components in the output side: <b>select</b>, <b>remember</b>, and <b>memory</b> and call it decoder. Therefore, the pointer network is a neural network architecture that encodes the input and converts it into a latent memory and use a decoder step to generate a pointer to the input. 
 
-However, the representation in <b>Figure 2</b> is what we actually tries to teach the pointer network. When trained it pointer network starts by making random guesses and improves with time until it obtains clear decisions. 
+However, the representation in <b>Figure 2</b> is what we actually tries to teach the pointer network to do. When trained, the pointer network starts by making random guesses and improves with time until it obtains clear decisions. 
 
 A training until convergence of pointer network is shown in <b>Figure 5</b>. This file is generated from `masked_pointer_net_example.ipynb`.
 
