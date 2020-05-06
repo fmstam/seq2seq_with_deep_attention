@@ -66,7 +66,7 @@ So far we have seen an estimation of what the machine is doing, but is that what
  
 > We need to remember both the input and the generated sequence so far. We actually use both memories to generate the next arrows. That is (memory(input), memory(output so far)) -> next arrow 
 
-Therefore, we can the sketch the following components from the above steps:
+Therefore, we can sketch the following components from the above steps:
 
 <p align="center">
   <img src="images/ptr_machine_4.png" width="500" height="300">
