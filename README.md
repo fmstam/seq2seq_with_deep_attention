@@ -45,7 +45,7 @@ The current implementation is meant for learning purposes and might not be effic
 
 Each one of these arrows <b>points</b> to an item in the input. For each input the machine will generate a sequence of these arrows (<b>pointers</b>). Therefore, the machine must learn a mechanism that generates these arrows.
 
-Let create a better representation that in <b>Figure 1</b> when using a hot-one encoding matrix. Where each row tells us which input (x axis) to point to in the current step (y axis).
+Let us create a better representation that in <b>Figure 1</b> when using a hot-one encoding matrix. Where each row tells us which input (x axis) to point to in the current step (y axis).
 
 <p align="center">
   <img src="images/ptr_machine_3.png" width="650" height="240">
