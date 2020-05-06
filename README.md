@@ -98,3 +98,4 @@ A training until convergence of pointer network is shown in <b>Figure 5</b>. Thi
 - [1] Loung model paper: https://arxiv.org/abs/1508.04025
 - [2] Pointer network paper: https://arxiv.org/abs/1506.03134
 - [3] TensorFlow 2.0 Impelementation : https://github.com/AndreMaz/deep-attention
+ 
