@@ -1,11 +1,11 @@
 # Sequence to sequence (seq2seq) with attention 
 
-This work is the minimal pytorch implementation of some sequence to sequence (seq2seq) models. Here I am describing:
+This work is the minimal pytorch implementation of some sequence to sequence (seq2seq) models:
 * Loung seq2seq model: used in NLP sequence to sequence translation
-* Pointer networks: an important piece in many combintorial neural networks.
+* Pointer networks: an important piece in many combinatorial neural networks.
 
 
-It is written in a none-technincal way to explain the intution behined these models. However, the code follows the papers that describe the models. A more technical describtion will be published soon.
+This repo. is written in a none-technical way to explain the intuition behind these models. However, the code follows the papers that describe the models. A more technical description will be published soon.
 
 ## Keywords:
 sequence to sequence ; Loung; NLP; optimization; Pointer networks
@@ -18,13 +18,13 @@ sequence to sequence ; Loung; NLP; optimization; Pointer networks
 
 ## 1- Loung seq2seq model.
  We have used the date generation code from https://github.com/tensorflow/tfjs-examples/tree/master/date-conversion-attention to create a dataset and have followed the same steps in this link, but our implementation uses NLLoss instead of cat. softmax loss function. 
-The current implementation is meant for learninig purposes and might not be effecient in terms of speed.
+The current implementation is meant for learning purposes and might not be efficient in terms of speed.
 
 ### To run:
   see `Loung_seq2seq_example.ipynb`
 
 ## 2- Pointer nets.
- This is simillar to the previouse model but in this case we use the softmax output to point back to the input. Thus making the output and input length consistent and removes the limitation in predefining a fixed output length. 
+ This is similar to the previous model but in this case we use the softmax output to point back to the input. Thus making the output and input length consistent and removes the limitation in predefining a fixed output length. 
 
 ### Sorting numbers using pointer nets
  I will use number sorting example to demonstrate how pointer network works.
@@ -43,7 +43,7 @@ The current implementation is meant for learninig purposes and might not be effe
   <br><b> Figure 2 </b>
 </p>
 
-Each one of these arrows <b>points</b> to an item in the input. For each input the machine will generate a sequence of these arrows (<b>pointers</b>). Therefore, the mahine must learn a mechanisim that generates these arrows.
+Each one of these arrows <b>points</b> to an item in the input. For each input the machine will generate a sequence of these arrows (<b>pointers</b>). Therefore, the machine must learn a mechanism that generates these arrows.
 
 Let create a better representation that in <b>Figure 1</b> when using a hot-one encoding matrix. Where each row tells us which input (x axis) to point to in the current step (y axis).
 
@@ -59,12 +59,12 @@ Please note that, since there are two <b>17</b>s in the input, we can point to a
 So far we have seen an estimation of what the machine is doing, but is that we pointer networks actually does. To know the answer, let us construct another sketch of how would human do it:
 - Repeat these steps:
 1. read an item from the sequence. 
-2. remeber it , why? Because we actually look for the smallest number. Therefore we need to remeber all number we have visisted
+2. remember it , why? Because we actually look for the smallest number. Therefore we need to remember all number we have visited
 - After we have read and remembered all items from the input, we can start generating the arrows in <b>Figure 2</b>. Therefore we repeat the following steps until we generate all arrows:
 1. pick the smallest number, then draw arrow to it.
-2. remeber it, why? Because we will use it to find the second smallest number.
+2. remember it, why? Because we will use it to find the second smallest number.
  
-> We need to remeber both the input and the generated sequence so far. We actually use both memories to generate the next arrows. That is (memory(input), memory(output sofar)) -> next arrow 
+> We need to remember both the input and the generated sequence so far. We actually use both memories to generate the next arrows. That is (memory(input), memory(output so far)) -> next arrow 
 
 Therefore, we can the sketch the following components from the above steps:
 
@@ -72,9 +72,9 @@ Therefore, we can the sketch the following components from the above steps:
   <img src="images/ptr_machine_4.png" width="500" height="300">
   <br><b>Figure 4</b>
 </p>
-The main component is <b>select</b>, where it uses both the memory from the input side, and the memory from the output side to generate the next arrow. The <b>remeber</b> component might have different preprocessing steps before it can store the data it receives.
+The main component is <b>select</b>, where it uses both the memory from the input side, and the memory from the output side to generate the next arrow. The <b>remember</b> component might have different preprocessing steps before it can store the data it receives.
 
-Let us combine the components in the input side: <b>read</b>, <b>remeber</b>, and <b>memory</b> and call it <i><b>Encoder</b></i>. Likewise, let us combine the components in the output side: <b>select</b>, <b>remeber</b>, and <b>memory</b> and call it decoder. Therefore, the pointer network is a neural network architecture that encodes the input and converts it into a latent memory and use a decoder step to generate a pointer to the input. 
+Let us combine the components in the input side: <b>read</b>, <b>remember</b>, and <b>memory</b> and call it <i><b>Encoder</b></i>. Likewise, let us combine the components in the output side: <b>select</b>, <b>remeber</b>, and <b>memory</b> and call it decoder. Therefore, the pointer network is a neural network architecture that encodes the input and converts it into a latent memory and use a decoder step to generate a pointer to the input. 
 
 However, the representation in <b>Figure 2</b> is what we actually tries to teach the pointer network. When trained it pointer network starts by making random guesses and improves with time until it obtains clear decisions. 
 
