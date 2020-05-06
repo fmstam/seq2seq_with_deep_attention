@@ -56,7 +56,7 @@ Where : yellow squares = 1, green = 0.5, blue =0.
 
 Please note that, since there are two <b>17</b>s in the input, we can point to any one of them with the same probability.
 
-So far we have seen an estimation of what the machine is doing, but is that we pointer networks actually does. To know the answer, let us construct another sketch of how would human do it:
+So far we have seen an estimation of what the machine is doing, but is that what pointer networks actually does. To know the answer, let us construct another sketch of how would human do it:
 - Repeat these steps:
 1. read an item from the sequence. 
 2. remember it , why? Because we actually look for the smallest number. Therefore we need to remember all number we have visited
