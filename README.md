@@ -95,6 +95,6 @@ A training until convergence of pointer network is shown in <b>Figure 5</b>. Thi
   - see  `pointer_net_multi_features_example.ipynb` for masked pointer network used for input vector with higher dimensions.
 
 # Links:
-- [1] Loung model paper: 
+- [1] Loung model paper: https://arxiv.org/abs/1508.04025
 - [2] Pointer network paper: https://arxiv.org/abs/1506.03134
 - [3] TensorFlow 2.0 Impelementation : https://github.com/AndreMaz/deep-attention
