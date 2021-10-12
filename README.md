@@ -1,5 +1,6 @@
 # Sequence to sequence (seq2seq) with attention 
 ![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white)
+![python](https://img.shields.io/badge/pytorch-v1.4.0-blue) 
 ![python](https://img.shields.io/badge/python-v3.7.6-blue) 
 
 
