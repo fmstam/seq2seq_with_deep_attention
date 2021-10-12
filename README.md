@@ -1,5 +1,6 @@
 # Sequence to sequence (seq2seq) with attention 
-
+![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white)
+![PyTorch](https://img.shields.io/badge/python-v3.7.6-blue) 
 This work is the minimal pytorch implementation of some sequence to sequence (seq2seq) models:
 * Loung seq2seq model: used in NLP sequence to sequence translation
 * Pointer networks: an important piece in many combinatorial neural networks.
